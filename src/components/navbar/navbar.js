@@ -55,7 +55,7 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <div id="Header">
+    <div id="Header" className="relative z-50">
       <div className="flex flex-nowrap justify-between h-20 px-6 border-b bg-white shadow-sm">
         {/* Logo */}
         <div className="flex items-center">
@@ -69,21 +69,28 @@ export default function Navbar() {
             </Link>
           </h1>
           {/* Desktop Navigation */}
-          <ul className="hidden md:flex items-center gap-12 ml-16 text-black">
+          <ul className="hidden md:flex items-center gap-12 ml-16 text-black text-lg font-bold uppercase tracking-wide">
             {navLinks.map((link) => (
               <li key={link.name} className="relative group">
                 <Link
-                  className="px-3 py-2 font-semibold hover:text-blue-600 text-black"
+                  className="px-3 py-2 font-bold text-black text-lg uppercase tracking-wider flex flex-col items-center group/nav"
                   aria-label="nav-item"
                   href={link.href}
                 >
-                  {link.name}
+                  <span className="relative">
+                    {link.name}
+                    <span className="absolute left-0 -bottom-1 w-full h-0.5 bg-yellow-400 scale-x-0 group-hover/nav:scale-x-100 transition-transform origin-left duration-200" />
+                  </span>
                 </Link>
-                <ul className="absolute left-0 top-full mt-2 w-56 bg-white shadow-lg rounded hidden group-hover:block z-10 text-black">
+                {/* Sublinks dropdown with fade+slide, border-yellow, shadow, rounded-xl, centered */}
+                <ul
+                  className="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-60 bg-white shadow-2xl rounded-2xl z-40 text-black border-t-4 border-yellow-300 pt-3 pb-3 flex flex-col items-center opacity-0 group-hover:opacity-100 group-hover:translate-y-2 pointer-events-none group-hover:pointer-events-auto transition-all duration-200"
+                  style={{ minWidth: 220 }}
+                >
                   {link.subLinks.map((sub) => (
-                    <li key={sub.name}>
+                    <li key={sub.name} className="w-full flex justify-center">
                       <Link
-                        className="block px-4 py-2 hover:bg-gray-100 text-black"
+                        className="block px-4 py-2 text-base text-center rounded-xl transition-all duration-150 hover:bg-yellow-100 hover:text-yellow-600 hover:scale-105"
                         href={sub.href}
                       >
                         {sub.name}
@@ -97,39 +104,43 @@ export default function Navbar() {
         </div>
         {/* Desktop User Actions */}
         <div className="hidden md:flex items-center">
-          <ul className="flex items-center mr-8 text-black">
+          <ul className="flex items-center mr-8 text-black gap-2">
             <li>
               <Link
-                className="flex items-center gap-2 px-3 py-2 hover:text-blue-600 text-black"
+                className="flex items-center gap-2 px-3 py-2 hover:text-yellow-500 text-black text-lg rounded-full border border-transparent hover:border-yellow-400 transition-all duration-150 shadow-sm"
                 aria-label="nav-item"
                 href="/signin"
               >
-                <img
-                  className="object-cover h-5 w-5"
-                  src="/static/img/icon-login.png"
-                  alt="login"
-                />
+                <span className="bg-white rounded-full p-2 shadow hover:bg-yellow-100 transition">
+                  <img
+                    className="object-cover h-5 w-5"
+                    src="/static/img/icon-login.png"
+                    alt="login"
+                  />
+                </span>
                 Login
               </Link>
             </li>
             <span className="mx-2 w-px h-6 bg-gray-300"></span>
             <li>
               <Link
-                className="flex items-center gap-2 px-3 py-2 hover:text-blue-600 text-black"
+                className="flex items-center gap-2 px-3 py-2 hover:text-yellow-500 text-black text-lg rounded-full border border-transparent hover:border-yellow-400 transition-all duration-150 shadow-sm"
                 aria-label="nav-item"
                 href="/signup"
               >
-                <img
-                  className="object-cover h-5 w-5"
-                  src="/static/img/icon-register.png"
-                  alt="register"
-                />
+                <span className="bg-white rounded-full p-2 shadow hover:bg-yellow-100 transition">
+                  <img
+                    className="object-cover h-5 w-5"
+                    src="/static/img/icon-register.png"
+                    alt="register"
+                  />
+                </span>
                 Create Account
               </Link>
             </li>
           </ul>
           <a href="#" className="relative group ml-4">
-            <div className="btn-wrap relative z-10">
+            <div className="btn-wrap relative z-10 border-2 border-yellow-400 rounded-xl overflow-hidden shadow-lg hover:scale-105 transition-transform duration-200">
               <img
                 src="/static/img/main_game_txt.png"
                 alt="game start"
@@ -162,23 +173,20 @@ export default function Navbar() {
         }`}
       >
         <div className="flex justify-end p-4">
-          <button
-            onClick={() => setIsMenuOpen(false)}
-            aria-label="Close menu"
-          >
+          <button onClick={() => setIsMenuOpen(false)} aria-label="Close menu">
             <FaTimes className="w-6 h-6" />
           </button>
         </div>
         <nav className="flex flex-col p-6 space-y-4">
           {navLinks.map((link) => (
             <div key={link.name}>
-              <h3 className="font-bold text-lg mb-2">{link.name}</h3>
-              <ul className="space-y-2 pl-4 border-l-2 border-gray-200">
+              <h3 className="font-bold text-lg mb-2 uppercase tracking-wider">{link.name}</h3>
+              <ul className="space-y-2 pl-4 border-l-2 border-yellow-300">
                 {link.subLinks.map((sub) => (
                   <li key={sub.name}>
                     <Link
                       onClick={() => setIsMenuOpen(false)}
-                      className="block hover:text-blue-600"
+                      className="block hover:text-yellow-600 hover:scale-105 transition-all"
                       href={sub.href}
                     >
                       {sub.name}
@@ -194,11 +202,13 @@ export default function Navbar() {
               className="flex items-center gap-2"
               href="/signin"
             >
-              <img
-                className="object-cover h-5 w-5"
-                src="/static/img/icon-login.png"
-                alt="login"
-              />
+              <span className="bg-white rounded-full p-2 shadow">
+                <img
+                  className="object-cover h-5 w-5"
+                  src="/static/img/icon-login.png"
+                  alt="login"
+                />
+              </span>
               Login
             </Link>
             <Link
@@ -206,11 +216,13 @@ export default function Navbar() {
               className="flex items-center gap-2"
               href="/signup"
             >
-              <img
-                className="object-cover h-5 w-5"
-                src="/static/img/icon-register.png"
-                alt="register"
-              />
+              <span className="bg-white rounded-full p-2 shadow">
+                <img
+                  className="object-cover h-5 w-5"
+                  src="/static/img/icon-register.png"
+                  alt="register"
+                />
+              </span>
               Create Account
             </Link>
           </div>
@@ -225,4 +237,4 @@ export default function Navbar() {
       )}
     </div>
   );
-} 
+}
