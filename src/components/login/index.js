@@ -22,7 +22,7 @@ export default function LoginPage() {
                 style={{
                   backgroundImage: 'url(/static/img/login/icon01.png)',
                   backgroundPosition: '98% 50%',
-                  backgroundSize: '20px 27px',
+                  backgroundSize: '20px 27  px',
                 }}
                 placeholder=""
                 autoComplete="username"
