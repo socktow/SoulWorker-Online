@@ -94,11 +94,6 @@ export default function HomeContent() {
       {/* Background Gradient */}
       <div className="absolute inset-0 -z-10 " />
       <h2 className="flex items-center justify-center text-3xl md:text-4xl font-extrabold mb-10 text-gray-900 drop-shadow-lg tracking-tight gap-4">
-        <img
-          src="/static/img/a018.png"
-          alt="news"
-          className=" w-auto md:h-30"
-        />
         Community Highlights
       </h2>
 

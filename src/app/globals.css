@@ -5,10 +5,11 @@
   --foreground: #000000;
 }
 
-body {
+html,body {
   background: #fff;
   color: #000;
   font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
 }
 
 @theme inline {

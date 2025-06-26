@@ -49,6 +49,13 @@ const navLinks = [
       { name: "1:1 Inquiry", href: "/support/qna" },
     ],
   },
+  {
+    name: "Status",
+    href: "/game-status",
+    subLinks: [
+      { name: "Game Staus" , href: "/game-status"}
+    ],
+  },
 ];
 
 export default function Navbar() {
