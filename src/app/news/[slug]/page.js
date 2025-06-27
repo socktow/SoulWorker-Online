@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, use } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 // Sample data (nên fetch từ API thực tế)
 const POSTS = [
@@ -47,12 +48,9 @@ export default function NewsDetail({ params }) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-10 text-center text-gray-500">
         <h1 className="text-2xl font-bold mb-4">Post not found</h1>
-        <button
-          className="px-4 py-2 bg-blue-500 text-white rounded-full font-semibold shadow hover:bg-blue-600 transition"
-          onClick={() => router.push('/news')}
-        >
+        <Link href="/news">
           Back to News
-        </button>
+        </Link>
       </div>
     );
   }
