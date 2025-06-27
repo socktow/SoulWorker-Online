@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function LastNews({ newsData }) {
   return (
     <div className="flex flex-col h-full min-h-[320px] bg-white/80 rounded-2xl shadow-lg overflow-hidden">
@@ -7,7 +9,7 @@ export default function LastNews({ newsData }) {
           <img src="/static/img/icon-lastest.png" alt="news" className="h-7 w-7" />
           Latest News
         </h4>
-        <a href="/news" className="text-white/80 text-sm font-semibold hover:underline hover:text-white transition">+ More</a>
+        <Link href="/news/">Read More</Link>
       </div>
       {/* News List */}
       <div className="flex-1 px-6 py-4">
