@@ -1,5 +1,5 @@
 "use client";
-
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -49,7 +49,15 @@ const POSTS = [
   },
 ];
 
-export default function NewsList() {
+export default function NewsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewsList />
+    </Suspense>
+  );
+}
+
+function NewsList() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
