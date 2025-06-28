@@ -1,13 +1,59 @@
+"use client";
+import { useState } from "react";
+import Stage1Email from "./components/Stage1Email";
+import Stage2Credentials from "./components/Stage2Credentials";
+import Stage3Success from "./components/Stage3Success";
+
 export default function RegisterPage() {
-    return (
-      <main className="p-8 max-w-md mx-auto">
-        <h1 className="text-2xl font-bold mb-4">Register</h1>
-        <form className="flex flex-col gap-4">
-          <input type="text" placeholder="Username" className="border p-2 rounded" />
-          <input type="email" placeholder="Email" className="border p-2 rounded" />
-          <input type="password" placeholder="Password" className="border p-2 rounded" />
-          <button type="submit" className="bg-green-600 text-white p-2 rounded">Register</button>
-        </form>
-      </main>
-    );
-  } 
+  const [currentStage, setCurrentStage] = useState(1);
+  const [userData, setUserData] = useState({});
+
+  const handleStage1Complete = (data) => {
+    setUserData(prev => ({ ...prev, email: data.email }));
+    setCurrentStage(2);
+  };
+
+  const handleStage2Complete = (data) => {
+    setUserData(prev => ({ ...prev, username: data.username, password: data.password }));
+    setCurrentStage(3);
+  };
+
+  const handleBackToStage1 = () => {
+    setCurrentStage(1);
+    setUserData({});
+  };
+
+  const handleBackToStage2 = () => {
+    setCurrentStage(2);
+  };
+
+  const renderCurrentStage = () => {
+    switch (currentStage) {
+      case 1:
+        return <Stage1Email onNext={handleStage1Complete} />;
+      case 2:
+        return (
+          <Stage2Credentials 
+            email={userData.email} 
+            onNext={handleStage2Complete} 
+            onBack={handleBackToStage1}
+          />
+        );
+      case 3:
+        return (
+          <Stage3Success 
+            userData={userData} 
+            onBack={handleBackToStage2}
+          />
+        );
+      default:
+        return <Stage1Email onNext={handleStage1Complete} />;
+    }
+  };
+
+  return (
+    <div id="Content">
+      {renderCurrentStage()}
+    </div>
+  );
+} 
