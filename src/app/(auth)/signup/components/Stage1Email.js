@@ -107,7 +107,7 @@ export default function Stage1Email({ onNext }) {
               </div>
             </div>
             <p className="text-sm text-gray-600 text-center">
-              We've sent a 6-digit code to <strong>{email}</strong>
+              We&apos;ve sent a 6-digit code to <strong>{email}</strong>
             </p>
             <button
               type="submit"
