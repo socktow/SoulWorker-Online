@@ -9,9 +9,17 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.0.0",
+    "@chakra-ui/icons": "^2.2.4",
+    "@chakra-ui/react": "^3.21.1",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@prisma/client": "^6.10.1",
+    "antd": "^5.26.2",
     "bcryptjs": "^3.0.2",
+    "clsx": "^2.1.1",
     "dotenv": "^16.6.1",
+    "framer-motion": "^12.19.2",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.523.0",
     "mongoose": "^8.16.1",
