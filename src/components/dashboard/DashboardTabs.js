@@ -6,7 +6,7 @@ const tabs = [
   { label: 'N-Coin History', path: '/dashboard/coin-purchase' },
   { label: 'My Inquiry', path: '/dashboard/inquiry' },
   { label: 'Forum Activities', path: '/dashboard/forum-activity' },
-  // { label: 'Coin Charge', path: '/dashboard/coin-charge' }, // Nếu cần thêm tab này
+  { label: 'Coin Charge', path: '/dashboard/coin-charge' }, 
 ];
 
 export default function DashboardTabs() {
