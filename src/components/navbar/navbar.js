@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
-import { FaBars, FaTimes } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import { FaBars, FaTimes, FaUser, FaSignOutAlt, FaCog } from "react-icons/fa";
+import { getUser, signOut, isAuthenticated, AUTH_EVENTS } from "@/lib/auth";
 
 const navLinks = [
   {
@@ -51,8 +52,244 @@ const navLinks = [
   }
 ];
 
+// User Login Section Component
+function UserLoginSection({ user, isUserMenuOpen, setIsUserMenuOpen }) {
+  const handleSignOut = () => {
+    signOut();
+    setIsUserMenuOpen(false);
+  };
+
+  if (!user) {
+    return (
+      <ul className="flex items-center mr-8 text-black gap-2">
+        <li>
+          <Link
+            className="flex items-center gap-2 px-3 py-2 hover:text-yellow-500 text-black text-lg rounded-full border border-transparent hover:border-yellow-400 transition-all duration-150 shadow-sm"
+            aria-label="nav-item"
+            href="/signin"
+          >
+            <span className="bg-white rounded-full p-2 shadow hover:bg-yellow-100 transition">
+              <img
+                className="object-cover h-5 w-5"
+                src="/static/img/icon-login.png"
+                alt="login"
+              />
+            </span>
+            Login
+          </Link>
+        </li>
+        <span className="mx-2 w-px h-6 bg-gray-300"></span>
+        <li>
+          <Link
+            className="flex items-center gap-2 px-3 py-2 hover:text-yellow-500 text-black text-lg rounded-full border border-transparent hover:border-yellow-400 transition-all duration-150 shadow-sm"
+            aria-label="nav-item"
+            href="/signup"
+          >
+            <span className="bg-white rounded-full p-2 shadow hover:bg-yellow-100 transition">
+              <img
+                className="object-cover h-5 w-5"
+                src="/static/img/icon-register.png"
+                alt="register"
+              />
+            </span>
+            Create Account
+          </Link>
+        </li>
+      </ul>
+    );
+  }
+
+  return (
+    <div className="relative mr-8 user-menu">
+      <button
+        onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+        className="flex items-center gap-3 px-4 py-2 hover:bg-yellow-50 rounded-xl border border-transparent hover:border-yellow-300 transition-all duration-150 shadow-sm"
+      >
+        <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center shadow-md">
+          <FaUser className="text-white text-lg" />
+        </div>
+        <div className="text-left">
+          <div className="text-sm font-semibold text-gray-900">{user.username}</div>
+          <div className="text-xs text-gray-500">{user.email}</div>
+        </div>
+      </button>
+
+      {/* User Dropdown Menu */}
+      {isUserMenuOpen && (
+        <div className="absolute right-0 top-full mt-2 w-64 bg-white shadow-2xl rounded-2xl z-40 border-t-4 border-yellow-300 pt-3 pb-3">
+          <div className="px-4 py-3 border-b border-gray-100">
+            <div className="text-sm font-semibold text-gray-900">{user.username}</div>
+            <div className="text-xs text-gray-500">{user.email}</div>
+          </div>
+          
+          <ul className="py-2">
+            <li>
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-colors"
+                onClick={() => setIsUserMenuOpen(false)}
+              >
+                <FaUser className="text-gray-400" />
+                Dashboard
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/profile"
+                className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-colors"
+                onClick={() => setIsUserMenuOpen(false)}
+              >
+                <FaCog className="text-gray-400" />
+                Settings
+              </Link>
+            </li>
+            <li className="border-t border-gray-100 mt-2 pt-2">
+              <button
+                onClick={handleSignOut}
+                className="flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 w-full transition-colors"
+              >
+                <FaSignOutAlt className="text-red-400" />
+                Sign Out
+              </button>
+            </li>
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Mobile User Section Component
+function MobileUserSection({ user, setIsMenuOpen }) {
+  const handleSignOut = () => {
+    signOut();
+    setIsMenuOpen(false);
+  };
+
+  if (!user) {
+    return (
+      <div className="border-t pt-4 space-y-4">
+        <Link
+          onClick={() => setIsMenuOpen(false)}
+          className="flex items-center gap-2"
+          href="/signin"
+        >
+          <span className="bg-white rounded-full p-2 shadow">
+            <img
+              className="object-cover h-5 w-5"
+              src="/static/img/icon-login.png"
+              alt="login"
+            />
+          </span>
+          Login
+        </Link>
+        <Link
+          onClick={() => setIsMenuOpen(false)}
+          className="flex items-center gap-2"
+          href="/signup"
+        >
+          <span className="bg-white rounded-full p-2 shadow">
+            <img
+              className="object-cover h-5 w-5"
+              src="/static/img/icon-register.png"
+              alt="register"
+            />
+          </span>
+          Create Account
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="border-t pt-4 space-y-4">
+      <div className="flex items-center gap-3 px-4 py-3 bg-yellow-50 rounded-xl">
+        <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
+          <FaUser className="text-white text-lg" />
+        </div>
+        <div>
+          <div className="text-sm font-semibold text-gray-900">{user.username}</div>
+          <div className="text-xs text-gray-500">{user.email}</div>
+        </div>
+      </div>
+      
+      <Link
+        onClick={() => setIsMenuOpen(false)}
+        className="flex items-center gap-2"
+        href="/dashboard"
+      >
+        <FaUser className="text-gray-400" />
+        Dashboard
+      </Link>
+      <Link
+        onClick={() => setIsMenuOpen(false)}
+        className="flex items-center gap-2"
+        href="/profile"
+      >
+        <FaCog className="text-gray-400" />
+        Settings
+      </Link>
+      <button
+        onClick={handleSignOut}
+        className="flex items-center gap-2 text-red-600 w-full"
+      >
+        <FaSignOutAlt className="text-red-400" />
+        Sign Out
+      </button>
+    </div>
+  );
+}
+
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const checkAuth = () => {
+    const userData = getUser();
+    setUser(userData);
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    checkAuth();
+
+    // Listen for custom auth events
+    const handleLogin = (event) => {
+      console.log('Login event received:', event.detail);
+      setUser(event.detail.user);
+      setIsLoading(false);
+    };
+
+    const handleLogout = () => {
+      console.log('Logout event received');
+      setUser(null);
+      setIsUserMenuOpen(false);
+    };
+
+    // Add event listeners
+    window.addEventListener(AUTH_EVENTS.LOGIN, handleLogin);
+    window.addEventListener(AUTH_EVENTS.LOGOUT, handleLogout);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener(AUTH_EVENTS.LOGIN, handleLogin);
+      window.removeEventListener(AUTH_EVENTS.LOGOUT, handleLogout);
+    };
+  }, []);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isUserMenuOpen && !event.target.closest('.user-menu')) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isUserMenuOpen]);
 
   return (
     <div id="Header" className="relative z-50">
@@ -104,41 +341,11 @@ export default function Navbar() {
         </div>
         {/* Desktop User Actions */}
         <div className="hidden md:flex items-center">
-          <ul className="flex items-center mr-8 text-black gap-2">
-            <li>
-              <Link
-                className="flex items-center gap-2 px-3 py-2 hover:text-yellow-500 text-black text-lg rounded-full border border-transparent hover:border-yellow-400 transition-all duration-150 shadow-sm"
-                aria-label="nav-item"
-                href="/signin"
-              >
-                <span className="bg-white rounded-full p-2 shadow hover:bg-yellow-100 transition">
-                  <img
-                    className="object-cover h-5 w-5"
-                    src="/static/img/icon-login.png"
-                    alt="login"
-                  />
-                </span>
-                Login
-              </Link>
-            </li>
-            <span className="mx-2 w-px h-6 bg-gray-300"></span>
-            <li>
-              <Link
-                className="flex items-center gap-2 px-3 py-2 hover:text-yellow-500 text-black text-lg rounded-full border border-transparent hover:border-yellow-400 transition-all duration-150 shadow-sm"
-                aria-label="nav-item"
-                href="/signup"
-              >
-                <span className="bg-white rounded-full p-2 shadow hover:bg-yellow-100 transition">
-                  <img
-                    className="object-cover h-5 w-5"
-                    src="/static/img/icon-register.png"
-                    alt="register"
-                  />
-                </span>
-                Create Account
-              </Link>
-            </li>
-          </ul>
+          <UserLoginSection 
+            user={user} 
+            isUserMenuOpen={isUserMenuOpen} 
+            setIsUserMenuOpen={setIsUserMenuOpen} 
+          />
           <a href="#" className="relative group ml-4">
             <div className="btn-wrap relative z-10 border-2 border-yellow-400 rounded-xl overflow-hidden shadow-lg hover:scale-105 transition-transform duration-200">
               <img
@@ -196,36 +403,7 @@ export default function Navbar() {
               </ul>
             </div>
           ))}
-          <div className="border-t pt-4 space-y-4">
-            <Link
-              onClick={() => setIsMenuOpen(false)}
-              className="flex items-center gap-2"
-              href="/signin"
-            >
-              <span className="bg-white rounded-full p-2 shadow">
-                <img
-                  className="object-cover h-5 w-5"
-                  src="/static/img/icon-login.png"
-                  alt="login"
-                />
-              </span>
-              Login
-            </Link>
-            <Link
-              onClick={() => setIsMenuOpen(false)}
-              className="flex items-center gap-2"
-              href="/signup"
-            >
-              <span className="bg-white rounded-full p-2 shadow">
-                <img
-                  className="object-cover h-5 w-5"
-                  src="/static/img/icon-register.png"
-                  alt="register"
-                />
-              </span>
-              Create Account
-            </Link>
-          </div>
+          <MobileUserSection user={user} setIsMenuOpen={setIsMenuOpen} />
         </nav>
       </div>
       {/* Overlay */}

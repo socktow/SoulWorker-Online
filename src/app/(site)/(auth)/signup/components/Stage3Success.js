@@ -1,14 +1,16 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Stage3Success({ userData, onBack }) {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const handleLogin = () => {
+  const handleGoToDashboard = () => {
     setIsLoading(true);
-    // Simulate redirect to login
+    // Redirect to dashboard since user is already authenticated
     setTimeout(() => {
-      window.location.href = '/signin';
+      router.push('/dashboard');
     }, 1000);
   };
 
@@ -54,7 +56,7 @@ export default function Stage3Success({ userData, onBack }) {
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
               </svg>
               <p className="text-blue-800 text-sm">
-                Your account has been successfully created. You can now log in with your email and password.
+                Your account has been successfully created and you are now logged in. You can access your dashboard.
               </p>
             </div>
           </div>
@@ -62,18 +64,19 @@ export default function Stage3Success({ userData, onBack }) {
         
         <div className="flex flex-col gap-4 px-8 md:px-16 items-center w-full mb-12">
           <button
-            onClick={handleLogin}
+            onClick={handleGoToDashboard}
             disabled={isLoading}
             className="btn-corner btn-loading w-full py-4 mt-2 mb-2 bg-black text-white font-bold text-xl rounded-none hover:bg-gray-900 transition-all max-w-[480px] disabled:bg-gray-400 disabled:cursor-not-allowed"
             style={{ clipPath: 'polygon(12% 0, 100% 0, 100% 91%, 88% 100%, 0 100%, 0 9%)' }}
           >
-            {isLoading ? "Redirecting..." : "Go to Login"}
+            {isLoading ? "Redirecting..." : "Go to Dashboard"}
           </button>
           
           <button
             type="button"
             onClick={onBack}
             className="text-blue-600 hover:underline text-sm"
+            disabled={isLoading}
           >
             Back to Registration
           </button>

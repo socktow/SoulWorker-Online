@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+import { signUp } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 
 export default function Stage2Credentials({ email, onNext, onBack }) {
   const [username, setUsername] = useState("");
@@ -7,6 +9,8 @@ export default function Stage2Credentials({ email, onNext, onBack }) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [apiError, setApiError] = useState("");
+  const router = useRouter();
 
   const validateForm = () => {
     const newErrors = {};
@@ -32,11 +36,22 @@ export default function Stage2Credentials({ email, onNext, onBack }) {
     if (!validateForm()) return;
     
     setIsLoading(true);
-    // Simulate API call to register user
-    setTimeout(() => {
+    setApiError("");
+
+    try {
+      const result = await signUp({ email, username, password });
+      
+      if (result.success) {
+        // Registration successful, proceed to next stage
+        onNext({ email, username, password });
+      } else {
+        setApiError(result.error || "Registration failed");
+      }
+    } catch (err) {
+      setApiError("An error occurred. Please try again.");
+    } finally {
       setIsLoading(false);
-      onNext({ email, username, password });
-    }, 1000);
+    }
   };
 
   return (
@@ -44,6 +59,14 @@ export default function Stage2Credentials({ email, onNext, onBack }) {
       <div className="login-wrapper min-w-[50%] max-w-2xl w-full mx-auto bg-white rounded shadow-none p-0">
         <p className="title text-4xl font-bold text-center mt-16 mb-4 text-black">Create Account</p>
         <div className="w-full mx-auto border-b-2 border-black mb-10"></div>
+        
+        {apiError && (
+          <div className="mb-4 px-8 md:px-16">
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+              {apiError}
+            </div>
+          </div>
+        )}
         
         <form onSubmit={handleSubmit} className="flex flex-col gap-8 px-8 md:px-16 items-center w-full">
           <div className="w-full flex justify-center">
@@ -63,6 +86,7 @@ export default function Stage2Credentials({ email, onNext, onBack }) {
                 }}
                 placeholder=""
                 autoComplete="username"
+                disabled={isLoading}
               />
               <label
                 htmlFor="username"
@@ -97,6 +121,7 @@ export default function Stage2Credentials({ email, onNext, onBack }) {
                 }}
                 placeholder=""
                 autoComplete="new-password"
+                disabled={isLoading}
               />
               <label
                 htmlFor="password"
@@ -131,6 +156,7 @@ export default function Stage2Credentials({ email, onNext, onBack }) {
                 }}
                 placeholder=""
                 autoComplete="new-password"
+                disabled={isLoading}
               />
               <label
                 htmlFor="confirmPassword"
@@ -161,6 +187,7 @@ export default function Stage2Credentials({ email, onNext, onBack }) {
             type="button"
             onClick={onBack}
             className="text-blue-600 hover:underline text-sm"
+            disabled={isLoading}
           >
             Back to Email Verification
           </button>
