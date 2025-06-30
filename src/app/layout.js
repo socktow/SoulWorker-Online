@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "SoulWorker VietNam",
+  title: "SoulWorker VietNam Online",
   description: "SoulWorker VietNam",
 };
 
