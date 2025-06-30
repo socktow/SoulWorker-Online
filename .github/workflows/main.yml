@@ -1,0 +1,25 @@
+name: 🚀 Deploy to cPanel
+
+on:
+  push:
+    branches:
+      - main  # hoặc branch bạn dùng
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v3
+
+    - name: 🔑 Setup SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H 163.227.160.7 >> ~/.ssh/known_hosts
+
+    - name: 🚀 SSH and Pull Code
+      run: |
+        ssh kiemhiep1@163.227.160.7 "cd /home/kiemhiep1/public_html && git pull"
