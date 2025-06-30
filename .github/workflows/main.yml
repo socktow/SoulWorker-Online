@@ -1,37 +1,22 @@
-name: 🚀 Deploy to cPanel Hosting
+name: 🚀 Auto FTP Deploy to cPanel
 
 on:
   push:
     branches:
-      - main  # thay bằng branch chính nếu không phải 'main'
+      - main
 
 jobs:
-  deploy:
+  ftp-deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: ✅ Checkout code
-      uses: actions/checkout@v3
+      - name: 📥 Checkout code
+        uses: actions/checkout@v3
 
-    - name: 🔐 Setup SSH
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H 163.227.160.7 >> ~/.ssh/known_hosts
-
-    - name: 🚀 Deploy via SSH
-      run: |
-        ssh kiemhiep1@163.227.160.7 << 'EOF'
-          cd /home/kiemhiep1/public_html
-
-          # Kiểm tra nếu thư mục là git repo
-          if [ -d .git ]; then
-            echo "🔁 Repo exists. Pulling latest code..."
-            git pull
-          else
-            echo "📥 Repo not found. Cloning..."
-            git clone git@github.com:socktow/SoulWorker-Online.git .
-          fi
-        EOF
-        
+      - name: 🚀 Deploy to cPanel via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./ # thư mục chứa code
+          server-dir: /public_html/ # sửa nếu code cần lên thư mục con
