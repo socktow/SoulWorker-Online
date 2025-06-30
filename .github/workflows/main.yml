@@ -18,5 +18,5 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./ # thư mục chứa code
-          server-dir: /public_html/ # sửa nếu code cần lên thư mục con
+          local-dir: ./ 
+          server-dir: /public_html/ 
