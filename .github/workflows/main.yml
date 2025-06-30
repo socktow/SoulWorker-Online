@@ -23,13 +23,16 @@ jobs:
 
       - name: 🏗️ Build Next.js project
         run: npm run build
+        env:
+          DATABASE_URL_MONGODB: ${{ secrets.DATABASE_URL_MONGODB }}
 
-      - name: 🧹 Cleanup files before deploy
+      - name: 🧹 Cleanup unnecessary files before deploy
         run: |
           rm -rf node_modules
           rm -rf .git
           rm -rf .github
           rm -f package-lock.json
+          rm -f .env  # tránh đẩy file .env lên hosting nếu bạn không muốn
 
       - name: 🚀 Deploy to cPanel via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
