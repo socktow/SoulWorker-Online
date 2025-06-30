@@ -8,9 +8,28 @@ on:
 jobs:
   ftp-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v3
+
+      - name: 🛠 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: 📦 Install dependencies
+        run: npm install
+
+      - name: 🏗️ Build Next.js project
+        run: npm run build
+
+      - name: 🧹 Cleanup files before deploy
+        run: |
+          rm -rf node_modules
+          rm -rf .git
+          rm -rf .github
+          rm -f package-lock.json
 
       - name: 🚀 Deploy to cPanel via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -18,5 +37,5 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./ 
-          server-dir: /public_html/swonline/
+          local-dir: ./
+          server-dir: public_html/swonline/
