@@ -34,3 +34,4 @@ jobs:
             git clone git@github.com:socktow/SoulWorker-Online.git .
           fi
         EOF
+        
