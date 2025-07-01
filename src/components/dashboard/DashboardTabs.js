@@ -1,41 +1,49 @@
 "use client";
 import { usePathname, useRouter } from 'next/navigation';
+import { motion } from "framer-motion";
 
 const tabs = [
   { label: 'Overview', path: '/dashboard/main' },
   { label: 'N-Coin History', path: '/dashboard/coin-purchase' },
   { label: 'My Inquiry', path: '/dashboard/inquiry' },
   { label: 'Forum Activities', path: '/dashboard/forum-activity' },
-  { label: 'Coin Charge', path: '/dashboard/coin-charge' }, 
 ];
 
 export default function DashboardTabs() {
   const pathname = usePathname();
   const router = useRouter();
 
+  const isActiveTab = (path) =>
+    pathname === path || (path === '/dashboard/main' && pathname === '/dashboard');
+
   return (
-    <div className="flex gap-0">
-      {tabs.map((tab, idx) => {
-        const isActive = pathname === tab.path || (tab.path === '/dashboard/main' && pathname === '/dashboard');
-        return (
-          <button
-            key={tab.path}
-            onClick={() => router.push(tab.path)}
-            className={`relative px-12 py-5 text-lg font-semibold border border-gray-200 border-b-0 focus:outline-none transition-colors
-              ${isActive ? 'bg-yellow-400 text-black z-10' : 'bg-white text-gray-600 hover:bg-yellow-50'}
-              ${idx === 0 ? 'rounded-tl-lg' : ''}
-              ${idx === tabs.length - 1 ? 'rounded-tr-lg' : ''}
-            `}
-            style={{
-              marginRight: '-1px',
-              clipPath: 'polygon(0 0, 100% 0, 98% 100%, 2% 100%)',
-              minWidth: 200,
-            }}
-          >
-            {tab.label}
-          </button>
-        );
-      })}
+    <div className="w-full max-w-full mx-auto flex justify-center mt-4 mb-10">
+      <div className="relative flex bg-white rounded-lg shadow border border-gray-200 px-2 py-1 overflow-x-auto">
+        {tabs.map((tab, idx) => {
+          const isActive = isActiveTab(tab.path);
+
+          return (
+            <button
+              key={tab.path}
+              onClick={() => router.push(tab.path)}
+              className={`relative px-5 py-3 mx-1 font-semibold text-sm md:text-base whitespace-nowrap transition-all duration-300 ease-in-out
+                ${isActive ? 'text-black font-bold' : 'text-gray-500 hover:text-yellow-500'}
+              `}
+              style={{
+                minWidth: 120,
+              }}
+            >
+              {tab.label}
+              {isActive && (
+                <motion.div
+                  layoutId="activeTabUnderline"
+                  className="absolute left-0 bottom-0 h-1 w-full rounded bg-yellow-400"
+                />
+              )}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
-} 
+}

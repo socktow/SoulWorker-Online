@@ -109,7 +109,7 @@ function UserLoginSection({ user, isUserMenuOpen, setIsUserMenuOpen }) {
           <FaUser className="text-white text-lg" />
         </div>
         <div className="text-left">
-          <div className="text-sm font-semibold text-gray-900">{user.username}</div>
+          <div className="text-sm font-semibold text-gray-900">{user.username} </div>
           <div className="text-xs text-gray-500">{user.email}</div>
         </div>
       </button>
@@ -123,6 +123,14 @@ function UserLoginSection({ user, isUserMenuOpen, setIsUserMenuOpen }) {
           </div>
           
           <ul className="py-2">
+            <li>
+              <a
+                className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-colors"
+              >
+                <FaUser className="text-gray-400" />
+                Scoin : {user.sCoin}
+              </a>
+            </li>
             <li>
               <Link
                 href="/dashboard"
@@ -257,7 +265,6 @@ export default function Navbar() {
 
     // Listen for custom auth events
     const handleLogin = (event) => {
-      console.log('Login event received:', event.detail);
       setUser(event.detail.user);
       setIsLoading(false);
     };
@@ -267,7 +274,6 @@ export default function Navbar() {
       setUser(null);
       setIsUserMenuOpen(false);
     };
-
     // Add event listeners
     window.addEventListener(AUTH_EVENTS.LOGIN, handleLogin);
     window.addEventListener(AUTH_EVENTS.LOGOUT, handleLogout);

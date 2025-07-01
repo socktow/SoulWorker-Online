@@ -41,6 +41,7 @@ export const getUser = () => {
     const userStr = localStorage.getItem(USER_KEY);
     return userStr ? JSON.parse(userStr) : null;
   }
+  console.log(userStr)
   return null;
 };
 

@@ -72,7 +72,8 @@ export async function POST(request) {
         id: user._id,
         username: user.username,
         email: user.email,
-        lastLogin: user.lastLogin
+        lastLogin: user.lastLogin,
+        sCoin: user.sCoin,
       },
       token
     });
