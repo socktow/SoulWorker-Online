@@ -1,5 +1,4 @@
 "use client";
-
 import {
   FaRegEdit,
   FaUserCircle,
@@ -8,18 +7,12 @@ import {
   FaQuestionCircle,
 } from "react-icons/fa";
 import { BsCoin } from "react-icons/bs";
-import { useEffect, useState } from "react";
-import { getUser } from "@/lib/auth";
 import { useRouter } from "next/navigation";
+import { useUser } from "../context/UserContext";
+import Image from "next/image";
 export default function DashboardMainPage() {
-  const [user, setUser] = useState(null);
   const router = useRouter();
-
-  useEffect(() => {
-    const userData = getUser();
-    setUser(userData);
-  }, []);
-
+  const user = useUser();
   if (!user) return null;
 
   const Card = ({ title, icon, children }) => (

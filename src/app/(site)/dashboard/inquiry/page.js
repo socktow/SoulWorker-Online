@@ -34,7 +34,7 @@ export default function InquiryPage() {
         </tbody>
       </table>
       <div className="mt-4 text-xs text-gray-500">
-        * Nếu có thắc mắc mới, vui lòng gửi yêu cầu tại mục "Send New Inquiry".
+        Có thắc mắc hãy vào mục iquery
       </div>
     </div>
   );
