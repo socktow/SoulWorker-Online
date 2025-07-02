@@ -1,4 +1,4 @@
-name: 🚀 Auto FTP Deploy to cPanel
+name: 🚀 Auto FTP Deploy to cPanel - NextJS 15.3.4
 
 on:
   push:
@@ -24,16 +24,10 @@ jobs:
       - name: 🌍 Set environment variables for build
         run: |
           echo "DATABASE_URL_MONGODB=${{ secrets.DATABASE_URL_MONGODB }}" >> .env
+          echo "OTHER_ENV=..." >> .env  # Add any other needed env vars
 
       - name: 🏗️ Build Next.js project
         run: npm run build
-
-      - name: 🧹 Cleanup files before deploy
-        run: |
-          rm -rf node_modules
-          rm -rf .git
-          rm -rf .github
-          rm -f package-lock.json
 
       - name: 🚀 Deploy to cPanel via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -43,3 +37,9 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./
           server-dir: public_html/myapp/
+          exclude: |
+            **/.git*
+            **/.github*
+            **/.vscode*
+            **/tests/**
+            README.md
