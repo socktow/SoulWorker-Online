@@ -1,41 +1,56 @@
-<<<<<<< HEAD
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-=======
 # SoulWorker-Online
-SoulWorker-Online
->>>>>>> ec372acaabb3bd3aa79500db563d85dba4e0e92b
+
+A web-based platform for SoulWorker Online — providing account management, game client tools, admin dashboard, news updates, giftcodes, forum, and more.
+
+## 🌐 Features
+
+### ✅ Player Side
+- **User Authentication**
+  - Sign In / Sign Up with Email
+  - Email-based OTP verification (via Redis)
+  - Password change/reset
+- **Account Management**
+  - Personal dashboard
+  - Charge history
+  - Giftcode redemption
+  - Profile avatar
+- **Game Tools**
+  - Client download
+  - IP block checker
+- **Forum**
+  - Post, reply, and moderate
+  - Categories and admin announcements
+
+### ⚙️ Admin Panel
+- **Dashboard Modules**
+  - Thông báo (Announcement)
+  - Server status
+  - Game version control
+  - Giftcode generation
+  - User & account manager
+  - IP blocking
+  - Payment / Thẻ nạp
+  - Webshop product control
+  - Lô đề (Lottery-style system)
+  - Post & forum moderation
+
+## 🛠 Tech Stack
+
+| Layer       | Tech                        |
+|-------------|-----------------------------|
+| Frontend    | Next.js 14 (App Router)     |
+| Styling     | Tailwind CSS                |
+| Animation   | Framer Motion               |
+| Backend     | Next.js API Routes          |
+| Database    | MongoDB (User, Forum, Data) |
+| Cache/OTP   | Redis (Upstash)             |
+| Auth        | JWT + Email verification    |
+| Hosting     | cPanel (with SSH Git Deploy)|
+
+## 🧪 Local Development
+
+### 1. Clone & Install
+```bash
+git clone https://github.com/socktow/SoulWorker-Online.git
+cd SoulWorker-Online
+npm install
