@@ -71,7 +71,7 @@ export default function Stage1Email({ onNext }) {
             <li>Enter an email address that has not yet been registered in Soulworker.</li>
             <li>You will receive an email confirmation from <b>soulworker@Soulworker.com</b>.</li>
             <li>If you did not receive the verification email in your Inbox or Spam folder, you may have entered a wrong email address. Please try again.</li>
-            <li>To ensure that you receive emails from us, please add <b>@Soulworker.com</b> to your email's whitelist.</li>
+            <li>To ensure that you receive emails from us, please add <b>@Soulworker.com</b> to your email whitelist.</li>
           </ul>
         </div>
       </div>
