@@ -6,13 +6,14 @@ import {
   FaLock,
   FaQuestionCircle,
 } from "react-icons/fa";
+import { useUser } from "../context/UserContext";
 import { BsCoin } from "react-icons/bs";
 import { useRouter } from "next/navigation";
-import { useUser } from "../context/UserContext";
-import Image from "next/image";
+
 export default function DashboardMainPage() {
   const router = useRouter();
   const user = useUser();
+
   if (!user) return null;
 
   const Card = ({ title, icon, children }) => (
@@ -143,7 +144,7 @@ export default function DashboardMainPage() {
             </span>
           </div>
           <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
-            {[
+            {[ 
               { label: "Created\nTopics", count: 0, bg: "bg-gray-100" },
               { label: "Left\nComments", count: 0, bg: "bg-gray-200" },
               { label: "Received\nLikes", count: 0, bg: "bg-gray-300" },

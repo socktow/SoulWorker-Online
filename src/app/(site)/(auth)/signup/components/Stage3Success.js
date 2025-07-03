@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signUp } from '@/lib/auth';
 
-export default function Stage3Success({ userData, onBack }) {
+export default function Stage3Success({ onBack }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -11,7 +12,7 @@ export default function Stage3Success({ userData, onBack }) {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
     if (!username || username.length < 3) {
@@ -27,10 +28,13 @@ export default function Stage3Success({ userData, onBack }) {
       return;
     }
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
+    const result = await signUp({ username, password, email: username }); // TODO: truyền đúng email nếu có
+    setIsLoading(false);
+    if (result.success) {
       setSuccess(true);
-    }, 1200);
+    } else {
+      setError(result.error || "Registration failed");
+    }
   };
 
   const handleGoToLogin = () => {

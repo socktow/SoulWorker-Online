@@ -1,10 +1,13 @@
 "use client";
-import { useUser } from "../context/UserContext";
 import { FaRegUserCircle } from "react-icons/fa";
 import Image from "next/image";
+import { useUser } from "../context/UserContext";
 
 export default function ForumActivityPage() {
   const user = useUser();
+
+  if (!user) return null;
+
   const stats = [
     { label: "Created Topics", value: 0, color: "bg-gray-100" },
     { label: "Left Comments", value: 0, color: "bg-gray-200" },
@@ -26,7 +29,7 @@ export default function ForumActivityPage() {
             height={96}
             className="rounded-full border-2 border-gray-200 object-cover"
           />
-          <span className="font-bold mt-2">{user?.username ?? "Chưa đăng nhập"}</span>
+          <span className="font-bold mt-2"> {user.username} </span>
           <span className="text-xs text-gray-500">
             Forum Sanction : <span className="text-blue-600">None</span>
           </span>

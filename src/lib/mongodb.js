@@ -12,7 +12,6 @@ global.mongoose = cached;
 
 export async function connectMongo() {
   if (cached.conn) {
-    console.log('✅ Using cached MongoDB connection');
     return cached.conn;
   }
 

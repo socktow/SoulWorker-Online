@@ -1,23 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { FaBars } from "react-icons/fa";
 import PcMenu from "./pcmenu";
 import MobileMenu from "./mobilemenu";
-import UserLoginSection from "./UserLoginSection"; // ✅ Sử dụng component đã tách riêng
-import { AUTH_EVENTS, getUser } from "@/lib/auth";
+import UserLoginSection from "./UserLoginSection";
+import { getUser } from "@/lib/auth/user";
+import { AUTH_EVENTS } from "@/lib/auth/events";
 
 const Navbar = () => {
-  const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    setUser(getUser());
+    async function fetchUser() {
+      const userData = await getUser();
+      setUser(userData);
+    }
+    fetchUser();
 
-    const handleLogin = () => setUser(getUser());
+    const handleLogin = () => fetchUser();
     const handleLogout = () => setUser(null);
 
     window.addEventListener(AUTH_EVENTS.LOGIN, handleLogin);

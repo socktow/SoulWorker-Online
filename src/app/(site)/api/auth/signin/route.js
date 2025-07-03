@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { connectMongo } from '@/lib/mongodb';
 import { User } from '@/models/user.model';
+import { redis } from '@/lib/redis';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -10,62 +11,41 @@ export async function POST(request) {
   try {
     const { email, password } = await request.json();
 
-    // Validate input
     if (!email || !password) {
-      return NextResponse.json(
-        { error: 'Email and password are required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
     }
 
-    // Connect to MongoDB
     await connectMongo();
-
-    // Find user by email
     const user = await User.findOne({ email });
 
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Invalid email or password' },
-        { status: 401 }
-      );
+    if (!user || !user.isActive) {
+      return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
 
-    // Check if user is active
-    if (!user.isActive) {
-      return NextResponse.json(
-        { error: 'Account is deactivated' },
-        { status: 401 }
-      );
-    }
-
-    // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
-
     if (!isPasswordValid) {
-      return NextResponse.json(
-        { error: 'Invalid email or password' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
 
-    // Update last login
     user.lastLogin = new Date();
     await user.save();
 
-    // Generate JWT token
+    // ✅ Tạo JWT token
     const token = jwt.sign(
-      { 
+      {
         userId: user._id,
         username: user.username,
-        email: user.email
+        email: user.email,
       },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    // Return success response
-    return NextResponse.json({
+    // ✅ Lưu vào Redis
+    await redis.set(`token:${token}`, user._id.toString(), { ex: 60 * 60 * 24 * 7 });
+
+    // ✅ Set cookie HttpOnly
+    const response = NextResponse.json({
       success: true,
       message: 'Login successful',
       user: {
@@ -75,14 +55,19 @@ export async function POST(request) {
         lastLogin: user.lastLogin,
         sCoin: user.sCoin,
       },
-      token
     });
 
+    response.cookies.set('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7,
+      sameSite: 'lax',
+    });
+
+    return response;
   } catch (error) {
     console.error('Signin error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

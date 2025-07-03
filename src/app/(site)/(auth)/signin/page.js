@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
-import { signIn } from "@/lib/auth";
 import { useRouter } from "next/navigation";
+import { signIn } from "@/lib/auth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -22,9 +22,7 @@ export default function LoginPage() {
     try {
       const result = await signIn({ email, password });
       if (result.success) {
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 100);
+        router.push("/dashboard");
       } else {
         setError(result.error || "Login failed");
       }
