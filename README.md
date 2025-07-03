@@ -29,9 +29,9 @@ A web-based platform for SoulWorker Online — providing account management, gam
   - Giftcode generation
   - User & account manager
   - IP blocking
-  - Payment / Thẻ nạp
+  - Payment 
   - Webshop product control
-  - Lô đề (Lottery-style system)
+  - Lottery (Lottery-style system)
   - Post & forum moderation
 
 ## 🛠 Tech Stack
