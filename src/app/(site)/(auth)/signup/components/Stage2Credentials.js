@@ -1,195 +1,83 @@
 "use client";
 import { useState } from "react";
-import { signUp } from "@/lib/auth";
-import { useRouter } from "next/navigation";
+
+const CORRECT_OTP = "123456"; // Giả lập OTP đúng
 
 export default function Stage2Credentials({ email, onNext, onBack }) {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [apiError, setApiError] = useState("");
-  const router = useRouter();
+  const [resent, setResent] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpError, setOtpError] = useState("");
 
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!username || username.length < 3) {
-      newErrors.username = "Username must be at least 3 characters";
-    }
-    
-    if (!password || password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
-    
-    if (password !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const handleResend = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      setResent(true);
+    }, 1200);
   };
 
-  const handleSubmit = async (e) => {
+  const handleNext = (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
-    
-    setIsLoading(true);
-    setApiError("");
-
-    try {
-      const result = await signUp({ email, username, password });
-      
-      if (result.success) {
-        // Registration successful, proceed to next stage
-        onNext({ email, username, password });
-      } else {
-        setApiError(result.error || "Registration failed");
-      }
-    } catch (err) {
-      setApiError("An error occurred. Please try again.");
-    } finally {
-      setIsLoading(false);
+    setOtpError("");
+    if (otp !== CORRECT_OTP) {
+      setOtpError("Invalid OTP. Please check your email and try again.");
+      return;
     }
+    onNext({ email });
   };
 
   return (
-    <div className="min-h-[70vh] flex flex-col items-center justify-center bg-white">
-      <div className="login-wrapper min-w-[50%] max-w-2xl w-full mx-auto bg-white rounded shadow-none p-0">
-        <p className="title text-4xl font-bold text-center mt-16 mb-4 text-black">Create Account</p>
-        <div className="w-full mx-auto border-b-2 border-black mb-10"></div>
-        
-        {apiError && (
-          <div className="mb-4 px-8 md:px-16">
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              {apiError}
-            </div>
-          </div>
+    <div className="min-h-[60vh] flex flex-col items-center justify-center bg-white">
+      <div className="w-full max-w-md bg-white rounded-none shadow-none p-0 flex flex-col items-center">
+        <h1 className="text-3xl font-bold text-black text-center mt-12 mb-6">Email Verification</h1>
+        <div className="w-full border-t-2 border-black mb-8"></div>
+        <div className="w-full max-w-lg text-gray-700 text-base mb-6">
+          <p className="mb-2">We have sent a 6-digit OTP code to <b>{email}</b>.</p>
+          <ul className="list-disc pl-5 space-y-1 mb-2">
+            <li>Please enter the OTP code below to verify your email address.</li>
+            <li>If you did not receive the OTP, you can resend it.</li>
+          </ul>
+        </div>
+        {resent && (
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded text-sm text-center mb-4 w-full">OTP resent!</div>
         )}
-        
-        <form onSubmit={handleSubmit} className="flex flex-col gap-8 px-8 md:px-16 items-center w-full">
-          <div className="w-full flex justify-center">
-            <div className="relative w-[480px] mb-4">
-              <input
-                id="username"
-                type="text"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
-                className={`border rounded-lg px-6 py-4 pr-20 bg-no-repeat text-black text-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all peer ${
-                  errors.username ? 'border-red-500' : 'border-gray-300'
-                }`}
-                style={{
-                  backgroundImage: 'url(/static/img/login/icon01.png)',
-                  backgroundPosition: '98% 50%',
-                  backgroundSize: '20px 27px',
-                }}
-                placeholder=""
-                autoComplete="username"
-                disabled={isLoading}
-              />
-              <label
-                htmlFor="username"
-                className={`
-                  absolute left-6 top-1/2 -translate-y-1/2 text-base font-semibold text-gray-500 bg-white px-1 transition-all pointer-events-none
-                  ${username ? "text-xs -top-3.5 left-4 text-blue-600" : ""}
-                  peer-focus:text-xs peer-focus:-top-3.5 peer-focus:left-4 peer-focus:text-blue-600
-                `}
-              >
-                Username
-              </label>
-            </div>
+        <form onSubmit={handleNext} className="flex flex-col gap-4 w-full max-w-lg items-center">
+          <div className="w-full flex items-center gap-2">
+            <input
+              id="otp"
+              type="text"
+              value={otp}
+              onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              className="w-full px-4 py-3 border border-gray-400 rounded-none text-black text-base focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all duration-150 bg-white text-center tracking-widest"
+              placeholder="Enter OTP"
+              maxLength={6}
+              autoComplete="one-time-code"
+              disabled={isLoading}
+            />
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={isLoading}
+              className=" py-2 px-2 bg-black text-white font-bold text-[11px] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? "Resending..." : "Resend OTP"}
+            </button>
           </div>
-          {errors.username && (
-            <p className="text-red-500 text-sm -mt-4">{errors.username}</p>
-          )}
-          
-          <div className="w-full flex justify-center">
-            <div className="relative w-[480px] mb-4">
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className={`border rounded-lg px-6 py-4 pr-20 bg-no-repeat text-black text-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all peer ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
-                }`}
-                style={{
-                  backgroundImage: 'url(/static/img/login/icon02.png)',
-                  backgroundPosition: '98% 50%',
-                  backgroundSize: '20px 27px',
-                }}
-                placeholder=""
-                autoComplete="new-password"
-                disabled={isLoading}
-              />
-              <label
-                htmlFor="password"
-                className={`
-                  absolute left-6 top-1/2 -translate-y-1/2 text-base font-semibold text-gray-500 bg-white px-1 transition-all pointer-events-none
-                  ${password ? "text-xs -top-3.5 left-4 text-blue-600" : ""}
-                  peer-focus:text-xs peer-focus:-top-3.5 peer-focus:left-4 peer-focus:text-blue-600
-                `}
-              >
-                Password
-              </label>
-            </div>
-          </div>
-          {errors.password && (
-            <p className="text-red-500 text-sm -mt-4">{errors.password}</p>
-          )}
-          
-          <div className="w-full flex justify-center">
-            <div className="relative w-[480px] mb-4">
-              <input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={e => setConfirmPassword(e.target.value)}
-                className={`border rounded-lg px-6 py-4 pr-20 bg-no-repeat text-black text-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all peer ${
-                  errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-                }`}
-                style={{
-                  backgroundImage: 'url(/static/img/login/icon02.png)',
-                  backgroundPosition: '98% 50%',
-                  backgroundSize: '20px 27px',
-                }}
-                placeholder=""
-                autoComplete="new-password"
-                disabled={isLoading}
-              />
-              <label
-                htmlFor="confirmPassword"
-                className={`
-                  absolute left-6 top-1/2 -translate-y-1/2 text-base font-semibold text-gray-500 bg-white px-1 transition-all pointer-events-none
-                  ${confirmPassword ? "text-xs -top-3.5 left-4 text-blue-600" : ""}
-                  peer-focus:text-xs peer-focus:-top-3.5 peer-focus:left-4 peer-focus:text-blue-600
-                `}
-              >
-                Confirm Password
-              </label>
-            </div>
-          </div>
-          {errors.confirmPassword && (
-            <p className="text-red-500 text-sm -mt-4">{errors.confirmPassword}</p>
-          )}
-          
+          {otpError && <div className="text-red-600 text-sm w-full text-center">{otpError}</div>}
           <button
             type="submit"
-            disabled={isLoading || !username || !password || !confirmPassword}
-            className="btn-corner btn-loading w-full py-4 mt-2 mb-2 bg-black text-white font-bold text-xl rounded-none hover:bg-gray-900 transition-all max-w-[480px] disabled:bg-gray-400 disabled:cursor-not-allowed"
-            style={{ clipPath: 'polygon(12% 0, 100% 0, 100% 91%, 88% 100%, 0 100%, 0 9%)' }}
+            className="btn-corner w-full py-4 mt-2 bg-black text-white font-bold text-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isLoading || otp.length !== 6}
           >
-            {isLoading ? "Creating Account..." : "Create Account"}
+            Next
           </button>
-          
           <button
             type="button"
             onClick={onBack}
-            className="text-blue-600 hover:underline text-sm"
-            disabled={isLoading}
+            className="text-blue-600 hover:underline text-sm mt-2"
           >
-            Back to Email Verification
+            Back to Email Entry
           </button>
         </form>
       </div>

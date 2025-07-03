@@ -26,10 +26,8 @@ export default function HomePage() {
         />
       </div>
       <HomeContent />
+      <Character />
       <div className="relative w-2/4 mx-auto mt-6">
-        {/* Divider line */}
-        <div id="divider" className="h-0.5 bg-black rounded w-full mb-10"></div>
-
         {/* Icon at the end of divider */}
         <img
           src="/static/img/util_icon09.png"
@@ -37,7 +35,6 @@ export default function HomePage() {
           className="absolute right-4 -top-2 h-2 w-auto"
         />
       </div>
-      <Character />
     </>
   );
 }

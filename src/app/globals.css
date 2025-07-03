@@ -25,3 +25,59 @@ html,body {
     --foreground: #ededed;
   }
 }
+
+.btn-corner {
+  position: relative;
+  clip-path: polygon(10% 0, 100% 0, 100% 60%, 90% 100%, 0 100%, 0 40%);
+  transition: clip-path 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  outline: none;
+  background: linear-gradient(to right, #0f172a, #1e293b); /* dark gradient */
+  color: white;
+  padding: 1rem 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.btn-corner:hover,
+.btn-corner:focus-visible {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.btn-corner::before,
+.btn-corner::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.btn-corner::before {
+  top: 0;
+  left: 0;
+  border-top: 16px solid #fff;
+  border-right: 16px solid transparent;
+  transition: transform 0.25s ease;
+  transform: scaleX(1);
+  transform-origin: top left;
+}
+
+.btn-corner::after {
+  bottom: 0;
+  right: 0;
+  border-bottom: 16px solid #fff;
+  border-left: 16px solid transparent;
+  transition: transform 0.25s ease;
+  transform: scaleX(1);
+  transform-origin: bottom right;
+}
+
+.btn-corner:hover::before,
+.btn-corner:focus-visible::before,
+.btn-corner:hover::after,
+.btn-corner:focus-visible::after {
+  transform: scaleX(0);
+}
+
