@@ -9,7 +9,7 @@ export default function InquiryPage() {
   ];
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg border mt-8 p-8">
+    <div className="w-full max-w-7xl mx-auto min-h-[700px] p-8 flex flex-col">
       <h1 className="text-2xl font-bold mb-6 text-yellow-500 flex items-center gap-2">
         <FaQuestionCircle className="text-yellow-600" /> LỊCH SỬ HỎI ĐÁP
       </h1>

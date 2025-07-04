@@ -66,13 +66,14 @@ export const signIn = async ({ email, password }) => {
 };
 
 export const signOut = async () => {
+  const token = getToken();
   try {
     await fetch('/api/auth/logout', {
       method: 'POST',
       credentials: 'include',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
   } catch (err) {
-    // ignore network error
   }
   clearToken();
   dispatchAuthEvent(AUTH_EVENTS.LOGOUT);

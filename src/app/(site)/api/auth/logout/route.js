@@ -1,19 +1,38 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { redis } from '@/lib/redis';
 
-export async function POST(request) {
-  const authHeader = request.headers.get('authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const token = authHeader.split(' ')[1];
+export async function POST() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('token')?.value;
 
   try {
-    await redis.del(`token:${token}`);
-    return NextResponse.json({ success: true, message: 'Logged out successfully' });
+    if (token) {
+      await redis.del(`token:${token}`);
+    }
+
+    const response = NextResponse.json({ success: true, message: 'Logged out successfully' });
+    response.cookies.set('token', '', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      maxAge: 0,
+      sameSite: 'lax',
+    });
+
+    return response;
   } catch (err) {
     console.error('Logout error:', err);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+
+    const response = NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    response.cookies.set('token', '', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      maxAge: 0,
+      sameSite: 'lax',
+    });
+
+    return response;
   }
 }

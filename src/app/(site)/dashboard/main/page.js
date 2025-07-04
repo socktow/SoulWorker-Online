@@ -6,15 +6,13 @@ import {
   FaLock,
   FaQuestionCircle,
 } from "react-icons/fa";
-import { useUser } from "../context/UserContext";
 import { BsCoin } from "react-icons/bs";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/app/UserProvider";
 
 export default function DashboardMainPage() {
   const router = useRouter();
   const user = useUser();
-
-  if (!user) return null;
 
   const Card = ({ title, icon, children }) => (
     <div className="col-span-1 bg-white rounded-2xl shadow-md border border-yellow-300 flex flex-col transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg">
@@ -37,7 +35,7 @@ export default function DashboardMainPage() {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-4">
       {/* Basic Info */}
       <Card title="BASIC INFORMATION" icon={<FaUserCircle />}>
-        <InfoRow label="SW Name" value={user.username} />
+      <InfoRow label="SW Name" value={user.username} />
         <InfoRow
           label="Last Logout"
           value={new Date(user.lastLogin).toLocaleString()}
@@ -45,14 +43,14 @@ export default function DashboardMainPage() {
         <div className="flex justify-between items-center">
           <span>S-Coin Balance</span>
           <span className="flex items-center gap-1 font-bold text-gray-800">
-            <BsCoin className="text-yellow-400" /> {user.sCoin}
+            <BsCoin className="text-yellow-400" />
           </span>
         </div>
       </Card>
 
       {/* Account Info */}
       <Card title="ACCOUNT INFORMATION" icon={<FaEnvelope />}>
-        <InfoRow label="Email" value={user.email} />
+        <InfoRow label="Email" value="" />
         <div className="flex justify-between items-center">
           <span>Password</span>
           <button
@@ -85,7 +83,7 @@ export default function DashboardMainPage() {
         <div className="flex items-center gap-2 text-lg">
           <span>Total S-Coin</span>
           <BsCoin className="text-yellow-400" />
-          <span className="font-bold">{user.sCoin}</span>
+          <span className="font-bold"> </span>
         </div>
         <div className="flex gap-2 mt-2">
           <button
@@ -138,7 +136,7 @@ export default function DashboardMainPage() {
               alt="avatar"
               className="w-24 h-24 rounded-full border-4 border-yellow-300 object-cover shadow-md hover:shadow-yellow-500 transition-shadow"
             />
-            <span className="font-bold mt-2">{user.username}</span>
+            <span className="font-bold mt-2"> </span>
             <span className="text-xs text-gray-500">
               Forum Sanction: <span className="text-blue-600">None</span>
             </span>

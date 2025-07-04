@@ -1,47 +1,127 @@
 "use client";
-import { FaRegUserCircle } from "react-icons/fa";
+import { useState } from "react";
+import { FaRegUserCircle, FaRegCommentDots, FaThumbsUp, FaBookmark, FaPen } from "react-icons/fa";
+import { useUser } from "@/app/UserProvider";
 import Image from "next/image";
-import { useUser } from "../context/UserContext";
+
+const tabs = [
+  { key: "topics", label: "Created Topics", icon: <FaPen /> },
+  { key: "comments", label: "Left Comments", icon: <FaRegCommentDots /> },
+  { key: "likes", label: "Likes", icon: <FaThumbsUp /> },
+  { key: "bookmarks", label: "Bookmarks", icon: <FaBookmark /> },
+];
+
+// Sample data
+const sampleData = {
+  topics: [
+    { id: 1, title: "How to level up fast?", date: "2025-07-01", category: "Guides" },
+    { id: 2, title: "Bug in Dungeon 3", date: "2025-06-28", category: "Bugs" },
+  ],
+  comments: [
+    { id: 1, content: "Nice guide! Helped me a lot.", topic: "Leveling Tips", date: "2025-07-02" },
+    { id: 2, content: "Same issue here!", topic: "Bug in Dungeon 3", date: "2025-07-01" },
+  ],
+  likes: [
+    { id: 1, target: "Guide: Boss Mechanics", author: "User123", date: "2025-07-02" },
+    { id: 2, target: "Best Build for PvE", author: "Knight456", date: "2025-06-30" },
+  ],
+  bookmarks: [
+    { id: 1, title: "Advanced Combat Guide", date: "2025-07-03", category: "Tutorial" },
+  ],
+};
 
 export default function ForumActivityPage() {
-  const user = useUser();
-
-  if (!user) return null;
-
-  const stats = [
-    { label: "Created Topics", value: 0, color: "bg-gray-100" },
-    { label: "Left Comments", value: 0, color: "bg-gray-200" },
-    { label: "Received Likes", value: 0, color: "bg-gray-300" },
-    { label: "Bookmarked Topics", value: 0, color: "bg-gray-800 text-white" },
-  ];
+  const [activeTab, setActiveTab] = useState("topics");
+  const user = useUser()
+  const data = sampleData[activeTab];
 
   return (
-    <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg border mt-8 p-8">
+    <div className="max-w-4xl mx-auto bg-white mt-8 p-6">
+      {/* Header */}
       <h1 className="text-2xl font-bold mb-6 text-yellow-500 flex items-center gap-2">
-        <FaRegUserCircle className="text-yellow-600" /> HOẠT ĐỘNG DIỄN ĐÀN
+        <FaRegUserCircle className="text-yellow-600" /> Forum Activities
       </h1>
-      <div className="flex flex-col md:flex-row items-center gap-6">
-        <div className="flex flex-col items-center w-full md:w-1/4">
-          <Image
-            src="/static/img/test/avatar.gif"
-            alt="avatar"
-            width={96}
-            height={96}
-            className="rounded-full border-2 border-gray-200 object-cover"
-          />
-          <span className="font-bold mt-2"> {user.username} </span>
-          <span className="text-xs text-gray-500">
-            Forum Sanction : <span className="text-blue-600">None</span>
-          </span>
+
+      {/* Profile */}
+      <div className="flex items-center gap-4 mb-6">
+        <Image
+          src="/static/img/test/avatar.gif"
+          alt="avatar"
+          width={64}
+          height={64}
+          className="rounded-full border object-cover"
+        />
+        <div>
+          <div className="font-bold">{user.username}</div>
+          <div className="text-xs text-gray-500">
+            Forum Sanction: <span className="text-blue-600">None</span>
+          </div>
         </div>
-        <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-2 w-full">
-          {stats.map((item) => (
-            <div key={item.label} className={`${item.color} rounded p-3 flex flex-col items-center`}>
-              <span className="font-bold text-lg">{item.value}</span>
-              <span className="text-xs text-center">{item.label}</span>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-2 border-b mb-4 overflow-x-auto">
+        {tabs.map((tab) => (
+          <button
+            key={tab.key}
+            className={`flex items-center gap-2 px-4 py-2 font-medium text-sm border-b-2 transition-all ${
+              activeTab === tab.key
+                ? "border-yellow-500 text-yellow-600 bg-yellow-50"
+                : "border-transparent text-gray-500 hover:text-yellow-600"
+            }`}
+            onClick={() => setActiveTab(tab.key)}
+          >
+            {tab.icon}
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Content */}
+      <div className="space-y-4">
+        {activeTab === "topics" &&
+          data.map((item) => (
+            <div key={item.id} className="p-4 bg-gray-50 border rounded">
+              <div className="font-semibold text-yellow-700">{item.title}</div>
+              <div className="text-xs text-gray-500">
+                Category: {item.category} • {item.date}
+              </div>
             </div>
           ))}
-        </div>
+
+        {activeTab === "comments" &&
+          data.map((item) => (
+            <div key={item.id} className="p-4 bg-gray-50 border rounded">
+              <div className="text-sm text-gray-800">“{item.content}”</div>
+              <div className="text-xs text-gray-500">
+                On topic: <span className="text-blue-600">{item.topic}</span> • {item.date}
+              </div>
+            </div>
+          ))}
+
+        {activeTab === "likes" &&
+          data.map((item) => (
+            <div key={item.id} className="p-4 bg-gray-50 border rounded">
+              <div className="text-sm text-yellow-700">❤️ {item.target}</div>
+              <div className="text-xs text-gray-500">
+                By: {item.author} • {item.date}
+              </div>
+            </div>
+          ))}
+
+        {activeTab === "bookmarks" &&
+          data.map((item) => (
+            <div key={item.id} className="p-4 bg-gray-50 border rounded">
+              <div className="font-semibold text-yellow-700">{item.title}</div>
+              <div className="text-xs text-gray-500">
+                Category: {item.category} • {item.date}
+              </div>
+            </div>
+          ))}
+
+        {data.length === 0 && (
+          <div className="text-center text-gray-400 text-sm py-10">No data available.</div>
+        )}
       </div>
     </div>
   );

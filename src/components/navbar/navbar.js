@@ -1,36 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FaBars } from "react-icons/fa";
 import PcMenu from "./pcmenu";
 import MobileMenu from "./mobilemenu";
 import UserLoginSection from "./UserLoginSection";
-import { getUser } from "@/lib/auth/user";
-import { AUTH_EVENTS } from "@/lib/auth/events";
+import { useUser } from "@/app/UserProvider";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    async function fetchUser() {
-      const userData = await getUser();
-      setUser(userData);
-    }
-    fetchUser();
-
-    const handleLogin = () => fetchUser();
-    const handleLogout = () => setUser(null);
-
-    window.addEventListener(AUTH_EVENTS.LOGIN, handleLogin);
-    window.addEventListener(AUTH_EVENTS.LOGOUT, handleLogout);
-
-    return () => {
-      window.removeEventListener(AUTH_EVENTS.LOGIN, handleLogin);
-      window.removeEventListener(AUTH_EVENTS.LOGOUT, handleLogout);
-    };
-  }, []);
+  const user = useUser();
 
   const navLinks = [
     {

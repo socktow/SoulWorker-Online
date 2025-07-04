@@ -1,7 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useEffect,useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "@/lib/auth";
+import { useUser } from "@/app/UserProvider";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -9,6 +10,15 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+
+  const user = useUser();
+
+  useEffect(() => {
+    if (user) {
+      router.replace("/dashboard/main");
+    }
+  }, [user, router]);
+  if (user) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();

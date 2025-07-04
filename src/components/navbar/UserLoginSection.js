@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { signOut } from "@/lib/auth";
 
 const UserLoginSection = ({ user }) => {
   return (
@@ -56,10 +57,9 @@ const UserLoginSection = ({ user }) => {
               <span className="text-gray-500">|</span>
               <a
                 href="#"
-                onClick={(e) => {
+                onClick={e => {
                   e.preventDefault();
-                  localStorage.clear();
-                  window.location.href = "/signin";
+                  signOut();
                 }}
                 className="hover:underline text-red-400"
               >

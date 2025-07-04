@@ -15,13 +15,18 @@ export const metadata = {
   title: "SoulWorker VietNam Online",
   description: "SoulWorker VietNam",
 };
+import { getUserFromToken } from "@/lib/auth/user.server";
+import { UserProvider } from "./UserProvider";
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const user = await getUserFromToken();
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {children}
+        <UserProvider user={user}>
+          {children}
+        </UserProvider>
       </body>
     </html>
   );
-} 
+}
