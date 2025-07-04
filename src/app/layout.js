@@ -14,6 +14,9 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "SoulWorker VietNam Online",
   description: "SoulWorker VietNam",
+  icons: {
+    icon: '/static/favicon.ico',
+  },
 };
 import { getUserFromToken } from "@/lib/auth/user.server";
 import { UserProvider } from "./UserProvider";
