@@ -1,94 +1,93 @@
 import mongoose from 'mongoose';
 
-const UserSchema = new mongoose.Schema({
-  // Tài khoản cơ bản
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-    minlength: 3,
-    maxlength: 20,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true,
-  },
-  password: {
-    type: String,
-    required: true,
-    minlength: 6,
-  },
+const UserSchema = new mongoose.Schema(
+  {
+    // Tài khoản cơ bản
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      minlength: 3,
+      maxlength: 20,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      minlength: 6,
+      select: false, // không trả về mặc định
+    },
 
-  // Thông tin hệ thống
-  sCoin: {
-    type: Number,
-    default: 0,
-    min: 0,
-  },
-  isActive: {
-    type: Boolean,
-    default: true,
-  },
-  lastLogin: {
-    type: Date,
-  },
-  lastLogout: {
-    type: Date,
-  },
+    // Ví tiền / điểm
+    swcoin: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
 
-  // Câu hỏi bảo mật
-  securityQuestion: {
-    question: { type: String, default: null },
-    answer: { type: String, default: null }, // Bạn có thể mã hóa nếu cần
-  },
+    // Hoạt động hệ thống
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    lastLogin: {
+      type: Date,
+    },
+    lastLogout: {
+      type: Date,
+    },
 
-  // Tùy chọn người dùng
-  receivePromotions: {
-    type: Boolean,
-    default: true,
-  },
+    // Câu hỏi bảo mật
+    securityQuestion: {
+      question: { type: String, default: null },
+      answer: { type: String, default: null }, // nên hash nếu sensitive
+    },
 
-  // Avatar
-  avatarUrl: {
-    type: String,
-    default: null,
-  },
+    // Tùy chọn cá nhân
+    receivePromotions: {
+      type: Boolean,
+      default: true,
+    },
 
-  // Forum activity
-  forum: {
-    createdTopics: { type: Number, default: 0 },
-    leftComments: { type: Number, default: 0 },
-    receivedLikes: { type: Number, default: 0 },
-    bookmarkedTopics: { type: Number, default: 0 },
-    sanction: { type: String, default: 'None' },
-  },
+    // Avatar
+    avatar: {
+      url: { type: String, default: null },
+      frame: { type: String, default: null },
+    },
 
-  // Inquiry thống kê
-  inquiryStats: {
-    total: { type: Number, default: 0 },
-    answered: { type: Number, default: 0 },
-    notAnswered: { type: Number, default: 0 },
-  },
+    // Tài khoản game
+    gameAccount: {
+      isActivated: { type: Boolean, default: false },
+      accountId: { type: String, default: null },
+      gamePassword: { type: String, select: false, default: null }, // nên hash
+    },
 
-  // Thời gian tạo/cập nhật
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+    // Forum activity
+    forum: {
+      createdTopics: { type: Number, default: 0 },
+      leftComments: { type: Number, default: 0 },
+      receivedLikes: { type: Number, default: 0 },
+      bookmarkedTopics: { type: Number, default: 0 },
+      sanction: { type: String, default: 'None' },
+    },
 
-// Middleware cập nhật updatedAt trước khi lưu
-UserSchema.pre('save', function (next) {
-  this.updatedAt = new Date();
-  next();
-});
+    // Thống kê liên hệ
+    inquiryStats: {
+      total: { type: Number, default: 0 },
+      answered: { type: Number, default: 0 },
+      notAnswered: { type: Number, default: 0 },
+    },
+  },
+  {
+    timestamps: true, // Tự động thêm createdAt & updatedAt
+  }
+);
 
 export const User = mongoose.models.User || mongoose.model('User', UserSchema);
