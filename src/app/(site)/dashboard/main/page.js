@@ -13,6 +13,7 @@ import { useUser } from "@/app/UserProvider";
 export default function DashboardMainPage() {
   const router = useRouter();
   const user = useUser();
+  console.log("🟢 [DashboardMainPage] user:", user);
 
   const Card = ({ title, icon, children }) => (
     <div className="col-span-1 bg-white rounded-2xl shadow-md border border-yellow-300 flex flex-col transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg">
@@ -20,7 +21,7 @@ export default function DashboardMainPage() {
         {icon && <div className="text-2xl text-yellow-700">{icon}</div>}
         <span className="font-bold text-lg text-gray-900">{title}</span>
       </div>
-      <div className="flex-1 flex flex-col gap-3 px-6 py-5">{children}</div>
+      <div className="flex-1 flex flex-col gap-3 px-6 py-8">{children}</div>
     </div>
   );
 
@@ -35,7 +36,7 @@ export default function DashboardMainPage() {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-4">
       {/* Basic Info */}
       <Card title="BASIC INFORMATION" icon={<FaUserCircle />}>
-      <InfoRow label="SW Name" value={user.username} />
+        <InfoRow label="SW Name" value={user.username} />
         <InfoRow
           label="Last Logout"
           value={new Date(user.lastLogin).toLocaleString()}
@@ -43,14 +44,31 @@ export default function DashboardMainPage() {
         <div className="flex justify-between items-center">
           <span>S-Coin Balance</span>
           <span className="flex items-center gap-1 font-bold text-gray-800">
+            <p>{user.swcoin}</p>
             <BsCoin className="text-yellow-400" />
           </span>
+        </div>
+
+        {/* GameID Active button */}
+        <div className="mt-2 flex justify-center w-full">
+          {user.gameId ? (
+            <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition">
+              GameID Active
+            </button>
+          ) : (
+            <button
+              className="px-4 py-2 bg-gray-400 text-white rounded cursor-not-allowed"
+              disabled
+            >
+              GameID Inactive
+            </button>
+          )}
         </div>
       </Card>
 
       {/* Account Info */}
       <Card title="ACCOUNT INFORMATION" icon={<FaEnvelope />}>
-        <InfoRow label="Email" value="" />
+        <InfoRow label="Email" value={user.email} />
         <div className="flex justify-between items-center">
           <span>Password</span>
           <button
@@ -82,6 +100,7 @@ export default function DashboardMainPage() {
       <Card title="S-COIN" icon={<BsCoin />}>
         <div className="flex items-center gap-2 text-lg">
           <span>Total S-Coin</span>
+          <p>{user.swcoin}</p>
           <BsCoin className="text-yellow-400" />
           <span className="font-bold"> </span>
         </div>
@@ -112,11 +131,11 @@ export default function DashboardMainPage() {
         <div className="flex gap-2 mt-2">
           <button
             onClick={() => router.push("/dashboard/inquiry")}
-            className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-4 py-2 rounded-full shadow-md w-full"
+            className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-sm px-4 py-2 rounded-full shadow-md w-full"
           >
             INQUIRY HISTORY
           </button>
-          <button className="bg-red-400 hover:bg-red-500 text-white font-bold px-4 py-2 rounded-full shadow-md w-full">
+          <button className="bg-red-400 hover:bg-red-500 text-white font-bold text-sm px-4 py-2 rounded-full shadow-md w-full">
             SEND NEW INQUIRY
           </button>
         </div>
@@ -142,7 +161,7 @@ export default function DashboardMainPage() {
             </span>
           </div>
           <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
-            {[ 
+            {[
               { label: "Created\nTopics", count: 0, bg: "bg-gray-100" },
               { label: "Left\nComments", count: 0, bg: "bg-gray-200" },
               { label: "Received\nLikes", count: 0, bg: "bg-gray-300" },

@@ -8,12 +8,21 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export async function POST(request) {
   try {
-    const { username, email, password } = await request.json();
+    const { username, email, password, role } = await request.json();
 
-    // Validate input
+    // Validate required fields
     if (!username || !email || !password) {
       return NextResponse.json(
         { error: 'Username, email, and password are required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: 'Invalid email format' },
         { status: 400 }
       );
     }
@@ -25,12 +34,16 @@ export async function POST(request) {
       );
     }
 
+    // Use 'user' if role is missing or invalid
+    const allowedRoles = ['user', 'mod', 'admin'];
+    const userRole = allowedRoles.includes(role) ? role : 'user';
+
     // Connect to MongoDB
     await connectMongo();
 
     // Check if user already exists
     const existingUser = await User.findOne({
-      $or: [{ email }, { username }]
+      $or: [{ email }, { username }],
     });
 
     if (existingUser) {
@@ -41,42 +54,45 @@ export async function POST(request) {
     }
 
     // Hash password
-    const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create new user
     const newUser = new User({
       username,
       email,
       password: hashedPassword,
+      role: userRole, // always safe, defaults to 'user'
     });
 
     await newUser.save();
 
     // Generate JWT token
     const token = jwt.sign(
-      { 
+      {
         userId: newUser._id,
         username: newUser.username,
-        email: newUser.email
+        email: newUser.email,
+        role: newUser.role,
       },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    // Return success response
-    return NextResponse.json({
-      success: true,
-      message: 'User registered successfully',
-      user: {
-        id: newUser._id,
-        username: newUser.username,
-        email: newUser.email,
-        createdAt: newUser.createdAt
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'User registered successfully',
+        user: {
+          id: newUser._id,
+          username: newUser.username,
+          email: newUser.email,
+          role: newUser.role,
+          createdAt: newUser.createdAt,
+        },
+        token,
       },
-      token
-    }, { status: 201 });
-
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Signup error:', error);
     return NextResponse.json(

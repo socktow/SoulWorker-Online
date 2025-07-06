@@ -10,19 +10,22 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 export async function POST(request) {
   try {
     const { email, password } = await request.json();
-
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
     }
 
     await connectMongo();
-    const user = await User.findOne({ email });
-
+    const user = await User.findOne({ email }).select('+password');
     if (!user || !user.isActive) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
 
+    if (!user.password) {
+      return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
+
     if (!isPasswordValid) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
@@ -30,7 +33,6 @@ export async function POST(request) {
     user.lastLogin = new Date();
     await user.save();
 
-    // ✅ Tạo JWT token
     const token = jwt.sign(
       {
         userId: user._id,
@@ -41,10 +43,8 @@ export async function POST(request) {
       { expiresIn: '7d' }
     );
 
-    // ✅ Lưu vào Redis
     await redis.set(`token:${token}`, user._id.toString(), { ex: 60 * 60 * 24 * 7 });
 
-    // ✅ Set cookie HttpOnly
     const response = NextResponse.json({
       success: true,
       message: 'Login successful',
@@ -53,7 +53,7 @@ export async function POST(request) {
         username: user.username,
         email: user.email,
         lastLogin: user.lastLogin,
-        sCoin: user.sCoin,
+        swcoin: user.swcoin,
       },
     });
 
@@ -67,7 +67,7 @@ export async function POST(request) {
 
     return response;
   } catch (error) {
-    console.error('Signin error:', error);
+    console.error('[SIGNIN] Error during sign-in:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

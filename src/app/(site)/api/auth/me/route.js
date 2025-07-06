@@ -9,7 +9,6 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export async function GET() {
   const cookieStore = await cookies();
-
   const token = cookieStore.get('token')?.value;
 
   if (!token) {
@@ -29,12 +28,13 @@ export async function GET() {
 
     // 3. Fetch user from MongoDB
     await connectMongo();
-    const user = await User.findById(userId).select('-password');
+    const user = await User.findById(userId).select('-password').lean(); // <-- dùng .lean() để trả về object thuần
+
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ user });
+    return NextResponse.json({ user }); // user giờ đã là object đầy đủ (có swcoin)
   } catch (err) {
     console.error('Auth/me error:', err);
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });

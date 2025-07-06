@@ -24,6 +24,12 @@ const UserSchema = new mongoose.Schema(
       minlength: 6,
       select: false, // không trả về mặc định
     },
+    
+    role: {
+      type: String,
+      enum: ['user', 'mod', 'admin'],
+      default: 'user',
+    },
 
     // Ví tiền / điểm
     swcoin: {

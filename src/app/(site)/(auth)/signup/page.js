@@ -14,7 +14,7 @@ export default function RegisterPage() {
   };
 
   const handleStage2Complete = (data) => {
-    setUserData(prev => ({ ...prev, username: data.username, password: data.password }));
+    setUserData(prev => ({ ...prev, ...data }));
     setCurrentStage(3);
   };
 
