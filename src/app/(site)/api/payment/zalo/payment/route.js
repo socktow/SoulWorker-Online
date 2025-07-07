@@ -21,10 +21,11 @@ export async function POST(request) {
 
     const items = [];
     const transID = Math.floor(Math.random() * 1000000);
+    const app_trans_id = `${moment().format('YYMMDD')}${transID}`;
 
     const order = {
       app_id: ZALO_APP_ID,
-      app_trans_id: `${moment().format('YYMMDD')}_${transID}`,
+      app_trans_id,
       app_user: 'user123',
       app_time: Date.now(),
       item: JSON.stringify(items),
@@ -56,7 +57,12 @@ export async function POST(request) {
       params: order,
     });
 
-    return NextResponse.json(result.data);
+    return NextResponse.json({
+      ...result.data,
+      app_trans_id,
+      amount,
+      description: order.description
+    });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

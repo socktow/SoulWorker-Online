@@ -19,8 +19,6 @@ export async function POST(request) {
     const data = JSON.parse(dataStr);
     console.log('ZaloPay callback received for order:', data.app_trans_id);
 
-    // TODO: Update DB for this order as paid
-
     return NextResponse.json({
       return_code: 1,
       return_message: 'success',

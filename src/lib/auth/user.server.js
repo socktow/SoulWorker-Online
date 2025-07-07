@@ -27,6 +27,7 @@ export async function getUserFromToken() {
       username: dbUser.username,
       email: dbUser.email,
       swcoin: dbUser.swcoin,
+      gameAccount: dbUser.gameAccount,
       lastLogin: dbUser.lastLogin,
     };
   } catch (err) {
