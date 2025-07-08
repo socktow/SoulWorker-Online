@@ -1,19 +1,50 @@
+// models/order.model.js
 import mongoose from 'mongoose';
 
-const orderSchema = new mongoose.Schema(
+const OrderSchema = new mongoose.Schema(
   {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    packId: { type: Number, required: true },
-    cash: { type: Number, required: true },
-    coin: { type: Number, required: true },
-    provider: { type: String, enum: ['momo', 'zalopay'], required: true },
-    orderId: { type: String, required: true, unique: true },
-    requestId: { type: String }, // cho MoMo
-    transId: { type: String },   // cho ZaloPay
-    status: { type: String, enum: ['pending', 'success', 'failed'], default: 'pending' },
-    paymentData: { type: Object }, // lưu JSON raw trả về từ MoMo/Zalo
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    username: {
+      type: String,
+      required: true,
+    },
+    app_trans_id: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    zp_trans_id: {
+      type: String,
+      default: null, 
+    },
+    amount: {
+      type: Number,
+      required: true,
+    },
+    method: {
+      type: String,
+      enum: ['QR', 'ATM', 'Credit', 'Unknown'],
+      default: 'Unknown',
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'success', 'fail'],
+      default: 'pending',
+    },
+    description: {
+      type: String,
+    },
+    zalo_response: {
+      type: Object, // lưu full response từ ZaloPay (tùy chọn)
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true, // tự động thêm createdAt và updatedAt
+  }
 );
 
-export const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
+export const Order = mongoose.models.Order || mongoose.model('Order', OrderSchema);

@@ -2,7 +2,23 @@
 import { useState, useEffect, useRef } from "react";
 import QRCode from "react-qr-code";
 
+const paymentMethods = [
+  { value: "QR", label: "ZaloPay QR" },
+  { value: "ATM", label: "ATM" },
+  { value: "Credit", label: "Thẻ tín dụng" },
+];
+
+const rechargePacks = [
+  { amount: 10000, coin: 1000 },
+  { amount: 20000, coin: 2500 },
+  { amount: 50000, coin: 7000 },
+  { amount: 100000, coin: 15000 },
+];
+
 export default function ZaloQRCodeDisplay() {
+  const [method, setMethod] = useState("QR");
+  const [selectedPack, setSelectedPack] = useState(rechargePacks[0]);
+
   const [qrCodeValue, setQrCodeValue] = useState("");
   const [appTransId, setAppTransId] = useState("");
   const [paymentStatus, setPaymentStatus] = useState(null);
@@ -13,17 +29,32 @@ export default function ZaloQRCodeDisplay() {
   const handlePayment = async () => {
     setPaymentStatus(null);
     setSuccessInfo(null);
+
     const res = await fetch("/api/payment/zalo/payment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: 50000 }),
+      body: JSON.stringify({
+        amount: selectedPack.amount,
+        method,
+        item: {
+          itemid: `coin-${selectedPack.amount}`,
+          itemname: `Gói coin ${selectedPack.coin}`,
+          itemprice: selectedPack.amount,
+          itemquantity: 1,
+        },
+      }),
     });
 
     const data = await res.json();
-    setQrCodeValue(data.qr_code);
-    setAppTransId(data.app_trans_id);
-    setPaymentInfo(data);
-    startAutoCheck(data.app_trans_id, data);
+
+    if (data.qr_code) {
+      setQrCodeValue(data.qr_code);
+      setAppTransId(data.app_trans_id);
+      setPaymentInfo(data);
+      startAutoCheck(data.app_trans_id, data);
+    } else {
+      setPaymentStatus("❌ Tạo đơn hàng thất bại");
+    }
   };
 
   const startAutoCheck = (appTransId, originalInfo) => {
@@ -62,18 +93,57 @@ export default function ZaloQRCodeDisplay() {
   }, []);
 
   return (
-    <div className="p-6">
+    <div className="p-6 max-w-xl mx-auto">
       {!successInfo && (
-        <button
-          onClick={handlePayment}
-          className="bg-yellow-400 px-4 py-2 rounded hover:bg-yellow-500 font-bold"
-        >
-          Tạo mã QR thanh toán
-        </button>
+        <div className="space-y-4 mb-6">
+          <div>
+            <label className="block font-bold mb-1">Chọn phương thức thanh toán:</label>
+            <div className="flex gap-4">
+              {paymentMethods.map((m) => (
+                <label key={m.value} className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="method"
+                    value={m.value}
+                    checked={method === m.value}
+                    onChange={(e) => setMethod(e.target.value)}
+                  />
+                  {m.label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block font-bold mb-1">Chọn gói nạp:</label>
+            <div className="flex gap-4 flex-wrap">
+              {rechargePacks.map((pack) => (
+                <button
+                  key={pack.amount}
+                  onClick={() => setSelectedPack(pack)}
+                  className={`px-4 py-2 rounded border ${
+                    selectedPack.amount === pack.amount
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-100 hover:bg-gray-200"
+                  }`}
+                >
+                  {pack.amount.toLocaleString("vi-VN")}đ → {pack.coin} coin
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button
+            onClick={handlePayment}
+            className="bg-yellow-500 text-white px-4 py-2 rounded font-bold hover:bg-yellow-600"
+          >
+            Tạo mã QR thanh toán
+          </button>
+        </div>
       )}
 
       {qrCodeValue && !successInfo && (
-        <div className="mt-6 p-4 bg-white rounded shadow w-fit flex flex-col items-center">
+        <div className="p-4 bg-white rounded shadow w-fit flex flex-col items-center">
           <QRCode value={qrCodeValue} size={200} />
           <p className="mt-2 text-sm text-gray-500">Quét bằng ZaloPay</p>
 
@@ -85,13 +155,7 @@ export default function ZaloQRCodeDisplay() {
             <div className="mt-4 text-sm text-gray-700 text-left w-full">
               <p><strong>Mã giao dịch:</strong> {paymentInfo.app_trans_id}</p>
               <p><strong>Link thanh toán:</strong> <a href={paymentInfo.order_url} className="text-blue-600 underline" target="_blank">Mở trong Zalo</a></p>
-              <p>
-                <strong>Số tiền:</strong>{" "}
-                {typeof paymentInfo.amount === "number"
-                  ? paymentInfo.amount.toLocaleString("vi-VN")
-                  : "N/A"}{" "}
-                VND
-              </p>
+              <p><strong>Số tiền:</strong> {paymentInfo.amount.toLocaleString("vi-VN")} VND</p>
               <p><strong>Nội dung:</strong> {paymentInfo.description}</p>
               <p>
                 <strong>Hết hạn:</strong>{" "}
