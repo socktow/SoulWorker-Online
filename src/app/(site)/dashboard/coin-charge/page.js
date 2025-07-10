@@ -4,6 +4,7 @@ import { BsCoin } from "react-icons/bs";
 import { FaCreditCard, FaUniversity, FaQrcode, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { useUser } from "@/app/UserProvider";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 const swCardPackages = [
   { id: 1, coins: 575, bonus: 0, price: 85000 },
@@ -20,9 +21,11 @@ export default function CoinPurchasePage() {
   const [tab, setTab] = useState("swcard");
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [redeemCode, setRedeemCode] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("qrcode");
+  const [paymentMethod, setPaymentMethod] = useState("QR");
   const [showMoreMethods, setShowMoreMethods] = useState(false);
   const user = useUser();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const packages = tab === "swcard" ? swCardPackages : swCardPackages;
   const totalPrice = selectedPackage ? selectedPackage.price : 0;
@@ -31,8 +34,41 @@ export default function CoinPurchasePage() {
   const handleTabChange = (value) => {
     setTab(value);
     setSelectedPackage(null);
-    setPaymentMethod(value === "swcard" ? "swcard" : "qrcode");
+    setPaymentMethod(value === "swcard" ? "swcard" : "QR");
     setShowMoreMethods(false);
+  };
+
+  const handlePayNow = async () => {
+    if (!selectedPackage || tab !== "zalopay") return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/payment/zalo/payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: selectedPackage.price,
+          method: paymentMethod,
+          item: JSON.stringify([
+            {
+              itemid: `coin-${selectedPackage.price}`,
+              itemname: `Gói coin ${selectedPackage.coins + selectedPackage.bonus}`,
+              itemprice: selectedPackage.price,
+              itemquantity: 1,
+            }
+          ]),
+        }),
+      });
+      const data = await res.json();
+      const transactionId = data.ordernumberstr || data.app_trans_id;
+      if (transactionId) {
+        router.push(`/dashboard/coin-charge/result/${transactionId}`);
+      } else {
+        alert("❌ Tạo đơn hàng thất bại!");
+      }
+    } catch (e) {
+      alert("❌ Lỗi kết nối tới server!");
+    }
+    setLoading(false);
   };
 
   return (
@@ -166,39 +202,39 @@ export default function CoinPurchasePage() {
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                   >
-                    <label className={`flex items-center gap-3 p-3 rounded-lg border-2 ${paymentMethod === "qrcode" ? "border-orange-400 bg-orange-50" : "border-gray-200 hover:border-orange-300"} cursor-pointer`}>
+                    <label className={`flex items-center gap-3 p-3 rounded-lg border-2 ${paymentMethod === "QR" ? "border-orange-400 bg-orange-50" : "border-gray-200 hover:border-orange-300"} cursor-pointer`}>
                       <input
                         type="radio"
                         name="paymentMethod"
-                        value="qrcode"
-                        checked={paymentMethod === "qrcode"}
-                        onChange={() => setPaymentMethod("qrcode")}
+                        value="QR"
+                        checked={paymentMethod === "QR"}
+                        onChange={() => setPaymentMethod("QR")}
                         className="accent-orange-500"
                       />
                       <FaUniversity className="text-blue-600 text-xl" />
                       <span className="font-semibold text-gray-800">QR Code</span>
                     </label>
 
-                    <label className={`flex items-center gap-3 p-3 rounded-lg border-2 ${paymentMethod === "bank" ? "border-orange-400 bg-orange-50" : "border-gray-200 hover:border-orange-300"} cursor-pointer`}>
+                    <label className={`flex items-center gap-3 p-3 rounded-lg border-2 ${paymentMethod === "ATM" ? "border-orange-400 bg-orange-50" : "border-gray-200 hover:border-orange-300"} cursor-pointer`}>
                       <input
                         type="radio"
                         name="paymentMethod"
-                        value="bank"
-                        checked={paymentMethod === "bank"}
-                        onChange={() => setPaymentMethod("bank")}
+                        value="ATM"
+                        checked={paymentMethod === "ATM"}
+                        onChange={() => setPaymentMethod("ATM")}
                         className="accent-orange-500"
                       />
                       <FaUniversity className="text-green-600 text-xl" />
                       <span className="font-semibold text-gray-800">ATM Bank</span>
                     </label>
 
-                    <label className={`flex items-center gap-3 p-3 rounded-lg border-2 ${paymentMethod === "credit" ? "border-orange-400 bg-orange-50" : "border-gray-200 hover:border-orange-300"} cursor-pointer`}>
+                    <label className={`flex items-center gap-3 p-3 rounded-lg border-2 ${paymentMethod === "Credit" ? "border-orange-400 bg-orange-50" : "border-gray-200 hover:border-orange-300"} cursor-pointer`}>
                       <input
                         type="radio"
                         name="paymentMethod"
-                        value="credit"
-                        checked={paymentMethod === "credit"}
-                        onChange={() => setPaymentMethod("credit")}
+                        value="Credit"
+                        checked={paymentMethod === "Credit"}
+                        onChange={() => setPaymentMethod("Credit")}
                         className="accent-orange-500"
                       />
                       <FaCreditCard className="text-purple-500 text-xl" />
@@ -224,9 +260,10 @@ export default function CoinPurchasePage() {
                 ? "bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white shadow-lg hover:shadow-xl"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
               }`}
-            disabled={!selectedPackage}
+            disabled={!selectedPackage || (tab === "zalopay" && loading)}
+            onClick={tab === "zalopay" ? handlePayNow : undefined}
           >
-            Pay Now
+            {tab === "zalopay" && loading ? "Đang tạo đơn hàng..." : "Pay Now"}
           </button>
 
           <div className="text-xs text-gray-400 mt-2">

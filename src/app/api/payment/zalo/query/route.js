@@ -20,17 +20,20 @@ export async function POST(req) {
     }
 
     return NextResponse.json({
+      userId: order.userId,
+      username: order.username,
       app_trans_id: order.app_trans_id,
-      status: order.status,
-      amount: order.amount,
-      method: order.method,
       zp_trans_id: order.zp_trans_id,
+      method: order.method,
+      status: order.status,
       description: order.description,
-      createdAt: order.createdAt,
-      updatedAt: order.updatedAt,
-      expireAt: order.expireAt,
-      order_url: order.zalo_response?.order_url || null,
-      qr_code: order.zalo_response?.qr_code || null,
+      zalo_response: {
+        amount: order.zalo_response?.amount || null,
+        item: order.zalo_response?.item || null,
+        zp_trans_id: order.zalo_response?.zp_trans_id || null,
+        server_time: order.zalo_response?.server_time || null,
+        discount_amount: order.zalo_response?.discount_amount || null
+      }
     });
   } catch (err) {
     console.error("Lỗi khi truy vấn đơn hàng:", err);

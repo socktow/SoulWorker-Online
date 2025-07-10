@@ -2,4 +2,4 @@ export * from './token';
 export * from './user';
 export * from './events';
 export * from './api'; 
-export * from './apipayment'
+export * from './apizalo'
