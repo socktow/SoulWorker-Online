@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server';
 import {
-  createMoMoPayment,
-  createZaloPayment,
   checkMoMoPayment,
   checkZaloPayment,
   getConfig
-} from '@/lib/auth/apipayment';
+} from '@/lib/auth/apizalo';
 
 export async function POST(request) {
   try {
@@ -16,17 +14,17 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Missing payment type' }, { status: 400 });
     }
 
-    if (type === 'momo') {
-      if (action === 'check') {
-        if (!orderId) return NextResponse.json({ error: 'Missing orderId' }, { status: 400 });
-        const result = await checkMoMoPayment(orderId);
-        return NextResponse.json(result);
-      } else {
-        if (!amount) return NextResponse.json({ error: 'Missing amount' }, { status: 400 });
-        const result = await createMoMoPayment(amount, orderInfo);
-        return NextResponse.json(result);
-      }
-    }
+    // if (type === 'momo') {
+    //   if (action === 'check') {
+    //     if (!orderId) return NextResponse.json({ error: 'Missing orderId' }, { status: 400 });
+    //     const result = await checkMoMoPayment(orderId);
+    //     return NextResponse.json(result);
+    //   } else {
+    //     if (!amount) return NextResponse.json({ error: 'Missing amount' }, { status: 400 });
+    //     const result = await createMoMoPayment(amount, orderInfo);
+    //     return NextResponse.json(result);
+    //   }
+    // }
 
     if (type === 'zalo') {
       if (action === 'check') {
