@@ -1,20 +1,20 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
-import QRCode from "react-qr-code";
-import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 
-export default function CoinChargeResultPage() {
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { CheckCircle, XCircle, Loader2 } from "lucide-react";
+import QRCode from "react-qr-code";
+
+export default function ZaloPayResult() {
   const { ordernumberstr } = useParams();
-  const [paymentInfo, setPaymentInfo] = useState(null);
-  const [items, setItems] = useState([]);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchPaymentInfo();
-  }, []);
+    if (ordernumberstr) fetchResult();
+  }, [ordernumberstr]);
 
-  const fetchPaymentInfo = async () => {
+  const fetchResult = async () => {
     setLoading(true);
     try {
       const res = await fetch("/api/payment/zalo/query", {
@@ -22,153 +22,124 @@ export default function CoinChargeResultPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ordernumberstr }),
       });
-
-      const data = await res.json();
-      setPaymentInfo(data);
-
-      try {
-        const raw = data.zalo_response?.item?.[0];
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          setItems(parsed || []);
-        }
-      } catch (err) {
-        console.error("Lỗi khi phân tích item:", err);
-      }
+      const json = await res.json();
+      setData(json);
     } catch (err) {
-      console.error("Lỗi khi gọi API:", err);
+      console.error("Lỗi khi lấy kết quả giao dịch:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  if (!paymentInfo) {
+  // Xử lý dữ liệu item
+  let item = null;
+  try {
+    const raw = data?.zalo_response?.item;
+    if (raw) {
+      const arr = JSON.parse(raw);
+      item = arr?.[0]?.[0] || null;
+    }
+  } catch {
+    item = null;
+  }
+
+  if (loading) {
     return (
-      <div className="max-w-xl mx-auto p-6 bg-white shadow rounded-lg text-center space-y-4">
-        <h2 className="text-lg font-semibold text-gray-800">
-          Quét mã QR bằng ứng dụng ZaloPay để thanh toán
-        </h2>
-        <p className="text-gray-600">Mã giao dịch: {ordernumberstr}</p>
+      <div className="flex justify-center items-center p-10">
+        <Loader2 className="w-6 h-6 animate-spin mr-2 text-gray-500" />
+        <span>Đang tải thông tin giao dịch...</span>
+      </div>
+    );
+  }
+
+  if (!data || !data.status) {
+    return ;
+  }
+  
+  if (data.status === "pending") {
+    return (
+      <div className="max-w-lg mx-auto bg-white p-6 rounded-lg shadow text-center space-y-4">
+        <Loader2 className="w-8 h-8 animate-spin text-yellow-500 mx-auto" />
+        <h1 className="text-xl font-bold text-yellow-600">ĐANG CHỜ THANH TOÁN</h1>
+        <p className="text-gray-700 text-sm">
+          Hệ thống đang chờ phản hồi từ ZaloPay. Vui lòng hoàn tất thanh toán trong ứng dụng Zalo hoặc kiểm tra lại sau vài giây.
+        </p>
         <div className="flex justify-center">
-          <QRCode value={ordernumberstr} size={200} />
-        </div>
-        <button
-          onClick={fetchPaymentInfo}
-          disabled={loading}
-          className="bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold px-6 py-2 rounded hover:opacity-90 disabled:opacity-50 transition"
+        <QRCode value={ordernumberstr} size={200} />
+      </div>
+        <a
+          href={`/dashboard/coin-charge/result/${ordernumberstr}`}
+          className="inline-block mt-4 px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded transition"
         >
-          {loading ? (
-            <span className="flex items-center justify-center">
-              <Loader2 className="animate-spin w-4 h-4 mr-2" /> Đang kiểm tra...
-            </span>
-          ) : (
-            "Kiểm tra kết quả giao dịch"
-          )}
-        </button>
+          Kiểm tra lại trạng thái
+        </a>
       </div>
     );
   }
 
-  const zalo = paymentInfo.zalo_response || {};
-  const amount = zalo.amount || 0;
-  const discount = zalo.discount_amount || 0;
-  const totalPaid = amount - discount;
+  const isSuccess = data.status === "success";
+  const icon = isSuccess ? <CheckCircle className="w-8 h-8 text-green-600" /> : <XCircle className="w-8 h-8 text-red-600" />;
+  const statusText = isSuccess ? "THANH TOÁN THÀNH CÔNG" : "THANH TOÁN THẤT BẠI";
+  const reasonText = isSuccess
+    ? "Cảm ơn bạn đã thanh toán. Giao dịch đã hoàn tất!"
+    : "Hệ thống đang có lỗi, giao dịch thất bại!";
 
-  const createdAt = paymentInfo.createdAt
-    ? new Date(paymentInfo.createdAt).toLocaleString("vi-VN")
-    : "Không rõ";
+  // Thông tin giao dịch
+  const username = data.username || "-";
+  const appTransId = data.app_trans_id || "-";
+  const method = data.method === "QR" ? "Ngân hàng" : data.method;
+  const time = data.zalo_response?.app_time
+    ? new Date(data.zalo_response.app_time).toLocaleString("vi-VN")
+    : "-";
+  const amount = data.amount || 0;
+  const quantity = item?.itemquantity || 1;
+  const packName = item?.itemname || "-";
+  const bonus = item?.bonus || item?.coins || 0;
 
-  // Giao dịch FAILED hoặc PENDING
-  if (paymentInfo.status === "failed" || paymentInfo.status === "pending") {
-    return (
-      <div className="max-w-2xl mx-auto p-6 bg-white shadow rounded-lg space-y-6 border border-red-300 text-center">
-        <div className="text-red-500 text-6xl flex justify-center">❌</div>
-        <h1 className="text-2xl font-bold text-red-600">
-          THANH TOÁN {paymentInfo.status === "failed" ? "THẤT BẠI" : "CHƯA HOÀN THÀNH"}
-        </h1>
-
-        <p className="text-gray-700 font-medium">
-          Nhân vật: <span className="font-bold">{paymentInfo.username}</span>
-        </p>
-
-        <div className="bg-gray-100 rounded p-4 text-left space-y-2 text-sm">
-          <p><strong>Mã giao dịch:</strong> {paymentInfo.app_trans_id}</p>
-          <p><strong>Phương thức thanh toán:</strong> {paymentInfo.method}</p>
-          <p><strong>Thời gian giao dịch:</strong> {createdAt}</p>
-          <p className="text-red-600">
-            <strong>Nguyên nhân:</strong>{" "}
-            {paymentInfo.status === "failed"
-              ? "Hệ thống đang có lỗi, giao dịch thất bại!"
-              : "Bạn cần hoàn thành thanh toán của mình trước. Nếu thanh toán không thành công, liên hệ với fanpage hoặc đường dây nóng để được hỗ trợ."}
-          </p>
-        </div>
-
-        <button
-          onClick={fetchPaymentInfo}
-          className="mt-4 px-6 py-2 rounded text-white font-semibold bg-gradient-to-r from-red-500 to-orange-500 hover:opacity-90"
-        >
-          Thanh toán lại
-        </button>
-
-        <p className="text-sm text-gray-500 mt-3">
-          Cần hỗ trợ? Hãy liên hệ{" "}
-          <a href="https://www.facebook.com/" target="_blank" className="text-blue-600 underline">
-            Fanpage
-          </a>{" "}
-          hoặc gọi hotline chăm sóc khách hàng.
-        </p>
-      </div>
-    );
-  }
-
-  // Giao dịch thành công
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-6">
-      <div className="mb-4">
-        <h1 className="text-3xl font-bold text-blue-700">Kết quả giao dịch</h1>
-        <p className="text-gray-600">Thông tin chi tiết đơn hàng và trạng thái thanh toán.</p>
-      </div>
+    <div className="max-w-lg mx-auto bg-white p-6 rounded-lg shadow text-center space-y-4">
+      {icon}
+      <h1 className={`text-2xl font-bold ${isSuccess ? "text-green-600" : "text-red-600"}`}>{statusText}</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow p-5 border space-y-2">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">🧾 Thông tin giao dịch</h2>
-          <p><strong>Mã đơn hàng:</strong> {paymentInfo.app_trans_id}</p>
-          <p><strong>Mã giao dịch ZaloPay:</strong> {zalo.zp_trans_id || "Chưa có"}</p>
-          <p><strong>Người dùng:</strong> {paymentInfo.username}</p>
-          <p><strong>Phương thức:</strong> {paymentInfo.method}</p>
-          <p><strong>Trạng thái:</strong> ✅ Giao dịch thành công</p>
-          <p><strong>Ghi chú:</strong> {paymentInfo.description}</p>
+      <div className="flex justify-between text-sm text-gray-700 mb-2">
+        <div className="text-left">
+          <div className="font-semibold">ID nhận vật:</div>
+          <div>{username}</div>
         </div>
-
-        <div className="bg-white rounded-lg shadow p-5 border space-y-2">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">💵 Chi tiết thanh toán</h2>
-          <p><strong>Tổng giá trị:</strong> {amount.toLocaleString("vi-VN")} VND</p>
-          <p><strong>Giảm giá:</strong> {discount.toLocaleString("vi-VN")} VND</p>
-          <p className="text-green-600 font-bold">
-            Thanh toán thực tế: {totalPaid.toLocaleString("vi-VN")} VND
-          </p>
+        <div className="text-right">
+          <div className="font-semibold">Nhân vật:</div>
+          <div>{username}</div>
         </div>
       </div>
 
-      {items.length > 0 && (
-        <div className="bg-white rounded-lg shadow p-5 border">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">🎁 Danh sách vật phẩm</h2>
-          <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
-            {items.map((item, index) => (
-              <li key={index}>
-                {item.itemname} — {item.itemquantity} x{" "}
-                {item.itemprice.toLocaleString("vi-VN")} VND
-              </li>
-            ))}
-          </ul>
+      <div className="border rounded p-4 text-left text-sm bg-gray-50">
+        <div className="flex items-center gap-4 mb-3">
+          <img src="https://cdn-icons-png.flaticon.com/512/263/263142.png" alt="coin" className="w-14 h-14" />
+          <div>
+            <div className="font-bold text-base text-yellow-700">{bonus} {item?.bonus ? `+ ${item.bonus} Bonus` : ""}</div>
+            <div className="text-gray-700">{packName}</div>
+          </div>
         </div>
-      )}
+        <p><strong>Tên gói nạp:</strong> {packName}</p>
+        <p><strong>Số lượng:</strong> x{quantity}</p>
+        <p><strong>Mã giao dịch:</strong> {appTransId}</p>
+        <p><strong>Phương thức thanh toán:</strong> {method}</p>
+        <p><strong>Thời gian giao dịch:</strong> {time}</p>
+        <div className="mt-2">
+          <div className="font-semibold">Nguyên nhân</div>
+          <div className="bg-gray-200 rounded p-2 text-red-700 text-xs mt-1">{reasonText}</div>
+        </div>
+      </div>
 
-      <div className="flex justify-center mt-4">
-        <div className="flex items-center bg-green-100 text-green-700 px-4 py-3 rounded shadow">
-          <CheckCircle className="w-5 h-5 mr-2" />
-          Giao dịch đã được xác nhận thành công!
-        </div>
+      <a
+        href="/dashboard/coin-charge"
+        className="inline-block mt-4 px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded transition"
+      >
+        Thanh toán lại
+      </a>
+
+      <div className="text-xs text-gray-500 mt-2">
+        Bạn cần hỗ trợ về thanh toán? Hãy liên hệ bộ phận chăm sóc khách hàng <a href="#" className="underline text-orange-600">tại đây</a>.
       </div>
     </div>
   );

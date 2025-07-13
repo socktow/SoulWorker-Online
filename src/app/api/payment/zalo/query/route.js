@@ -32,7 +32,8 @@ export async function POST(req) {
         item: order.zalo_response?.item || null,
         zp_trans_id: order.zalo_response?.zp_trans_id || null,
         server_time: order.zalo_response?.server_time || null,
-        discount_amount: order.zalo_response?.discount_amount || null
+        discount_amount: order.zalo_response?.discount_amount || null, 
+        qr_code: order.zalo_response?.qr_code || null
       }
     });
   } catch (err) {

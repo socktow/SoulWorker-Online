@@ -48,14 +48,16 @@ export default function CoinPurchasePage() {
         body: JSON.stringify({
           amount: selectedPackage.price,
           method: paymentMethod,
-          item: JSON.stringify([
+          item: [
             {
-              itemid: `coin-${selectedPackage.price}`,
+              itemid: selectedPackage.id, // ID gốc của gói
               itemname: `Gói coin ${selectedPackage.coins + selectedPackage.bonus}`,
               itemprice: selectedPackage.price,
               itemquantity: 1,
+              coins: selectedPackage.coins + selectedPackage.bonus,
+              packid: selectedPackage.id, // hoặc giữ lại nếu bạn muốn rõ ràng
             }
-          ]),
+          ],
         }),
       });
       const data = await res.json();
@@ -79,8 +81,7 @@ export default function CoinPurchasePage() {
           {/* Character Info */}
           <div className="bg-white rounded-xl shadow p-6">
             <h2 className="font-bold text-lg mb-2">1. Character Information</h2>
-            <div className="text-gray-700 text-sm mb-1">Account ID: {user?.username}</div>
-            <div className="font-semibold text-base">UID: {user?.gameAccount?.accountId || "N/A"}</div>
+            <div className="font-semibold text-base mb-1 text-gray-600">Account ID: {user?.username}</div>
           </div>
 
           {/* Package Selection */}
