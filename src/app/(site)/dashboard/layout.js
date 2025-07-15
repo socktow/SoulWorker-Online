@@ -3,36 +3,26 @@
 import DashboardTabs from "@/components/dashboard/DashboardTabs";
 import { useUser } from "@/app/UserProvider";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 export default function DashboardLayout({ children }) {
-  const user = useUser();
+  const { user } = useUser();
   const router = useRouter();
-  const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
-    if (!user) {
-      const timeout = setTimeout(() => {
-        router.push("/signin");
-      }, 3000);
+    if (user === undefined) return; // Đang loading
+    if (!user) router.replace("/signin");
+  }, [user, router]);
 
-      setRedirecting(true);
-      return () => clearTimeout(timeout);
-    }
-  }, [user]);
-
-  if (!user) {
+  if (user === undefined) {
     return (
-      <div className="text-center py-10 text-red-600 font-semibold">
-        You must be logged in to access this page.
-        {redirecting && (
-          <div className="text-sm text-gray-500 mt-2">
-            Redirecting to Sign In...
-          </div>
-        )}
+      <div className="flex justify-center items-center min-h-screen text-xl font-semibold text-black">
+        Loading...
       </div>
     );
   }
+
+  if (!user) return null; // Đã đẩy về signin, không render gì
 
   return (
     <>
@@ -50,7 +40,7 @@ export default function DashboardLayout({ children }) {
       </div>
       <DashboardTabs />
       <div className="flex justify-center items-start w-full px-2">
-        <main className="w-full max-w-7xl mx-auto my-4 min-h-[700px] ">
+        <main className="w-full max-w-7xl mx-auto my-4 min-h-[700px]">
           {children}
         </main>
       </div>

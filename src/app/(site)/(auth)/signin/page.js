@@ -1,38 +1,48 @@
 "use client";
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "@/lib/auth";
 import { useUser } from "@/app/UserProvider";
 
 export default function LoginPage() {
+  const { user } = useUser();
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const router = useRouter();
 
-  const user = useUser();
-
+  // ✅ Chờ user được xác định
   useEffect(() => {
+    if (user === undefined) return; // Đang loading
     if (user) {
       router.replace("/dashboard/main");
     }
   }, [user, router]);
+
+  // ✅ Tránh render nháy nháy khi user chưa xác định
+  if (user === undefined) {
+    return <div className="min-h-screen flex justify-center items-center text-xl">Loading...</div>;
+  }
+
   if (user) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+
     if (!email || !password) {
       setError("Please fill in all fields");
       setLoading(false);
       return;
     }
+
     try {
       const result = await signIn({ email, password });
       if (result.success) {
-        router.push("/dashboard");
+        router.push("/dashboard"); // ✅ Redirect duy nhất sau login
       } else {
         setError(result.error || "Login failed");
       }
@@ -48,11 +58,13 @@ export default function LoginPage() {
       <div className="w-full max-w-md bg-white rounded-none shadow-none p-0 flex flex-col items-center">
         <h1 className="text-3xl font-bold text-black text-center mt-12 mb-6">Login</h1>
         <div className="w-full border-t-2 border-black mb-10"></div>
+
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded text-sm text-center mb-4 w-full">
             {error}
           </div>
         )}
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full px-2 md:px-0 items-center">
           {/* Email */}
           <div className="w-full max-w-lg">
@@ -62,11 +74,12 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-400 rounded-none text-black text-base focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all duration-150 bg-white"
+              className="w-full px-4 py-3 border border-gray-400 rounded-none text-black"
               autoComplete="username"
               disabled={loading}
             />
           </div>
+
           {/* Password */}
           <div className="w-full max-w-lg">
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1 ml-1">Password</label>
@@ -75,20 +88,22 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-400 rounded-none text-black text-base focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all duration-150 bg-white"
+              className="w-full px-4 py-3 border border-gray-400 rounded-none text-black"
               autoComplete="current-password"
               disabled={loading}
             />
           </div>
-          {/* Button */}
+
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className="btn-corner w-full max-w-lg py-4 mt-2 mb-2 bg-black text-white font-bold text-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-corner w-full max-w-lg py-4 mt-2 mb-2 bg-black text-white font-bold text-xl disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
+
         <ul className="flex justify-center gap-8 mt-8 mb-8 text-black text-base w-full">
           <li><a href="#" className="hover:underline">Find Account</a></li>
           <li><a href="#" className="hover:underline">Find Password</a></li>
