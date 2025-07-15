@@ -23,7 +23,7 @@ export default function CoinPurchasePage() {
   const [redeemCode, setRedeemCode] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("QR");
   const [showMoreMethods, setShowMoreMethods] = useState(false);
-  const user = useUser();
+  const { user } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 

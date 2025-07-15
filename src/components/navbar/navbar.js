@@ -10,7 +10,7 @@ import { useUser } from "@/app/UserProvider";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const user = useUser();
+  const { user } = useUser();
 
   const navLinks = [
     {

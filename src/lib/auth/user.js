@@ -5,9 +5,8 @@ export const getUser = async () => {
   if (!token) return null;
   try {
     const res = await fetch('/api/auth/me', {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
+      headers: { 'Authorization': `Bearer ${token}` },
+      cache: 'no-store',
     });
     if (!res.ok) return null;
     const data = await res.json();
@@ -15,4 +14,4 @@ export const getUser = async () => {
   } catch {
     return null;
   }
-}; 
+};

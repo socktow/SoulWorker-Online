@@ -6,14 +6,25 @@ import {
   FaLock,
   FaQuestionCircle,
 } from "react-icons/fa";
+import { useEffect } from "react";
 import { BsCoin } from "react-icons/bs";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/app/UserProvider";
 
 export default function DashboardMainPage() {
   const router = useRouter();
-  const user = useUser();
-  console.log("🟢 [DashboardMainPage] user:", user);
+  const { user, refreshUser } = useUser();
+
+  useEffect(() => {
+    const bc = new BroadcastChannel("coin-recharge");
+    bc.onmessage = (event) => {
+      if (event.data.type === "RECHARGE_SUCCESS") {
+        console.log("Coin updated from another tab:", event.data.coin);
+        refreshUser(); 
+      }
+    };
+    return () => bc.close();
+  }, []);
 
   const Card = ({ title, icon, children }) => (
     <div className="col-span-1 bg-white rounded-2xl shadow-md border border-yellow-300 flex flex-col transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg">
