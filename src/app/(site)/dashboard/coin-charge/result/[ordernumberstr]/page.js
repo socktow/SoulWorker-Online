@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { QRPaymentPending } from "./QRPaymentPending";
 import { PaymentResult } from "./PaymentResult";
+import { handleZaloQuery } from '@/lib/payment/zalopay';
 
 export default function ZaloPayResult() {
   const { ordernumberstr } = useParams();
@@ -16,12 +17,7 @@ export default function ZaloPayResult() {
     if (!showNotify) setShowReminder(false);
 
     try {
-      const res = await fetch("/api/payment/zalo/query", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ordernumberstr }),
-      });
-      const json = await res.json();
+      const json = await handleZaloQuery({ ordernumberstr });
       setData(json);
 
       if (json?.status === "pending" && showNotify) {

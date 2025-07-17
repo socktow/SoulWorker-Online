@@ -10,22 +10,19 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 export async function POST(request) {
   try {
     const { email, password } = await request.json();
+
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
     }
 
     await connectMongo();
     const user = await User.findOne({ email }).select('+password');
-    if (!user || !user.isActive) {
-      return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
-    }
 
-    if (!user.password) {
+    if (!user || !user.isActive || !user.password) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-
     if (!isPasswordValid) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
@@ -33,27 +30,26 @@ export async function POST(request) {
     user.lastLogin = new Date();
     await user.save();
 
-    const token = jwt.sign(
-      {
-        userId: user._id,
-        username: user.username,
-        email: user.email,
-      },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    const payload = {
+      userId: user._id.toString(),
+      username: user.username,
+      email: user.email,
+      role: user.role || 'user',
+    };
+
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
 
     await redis.set(`token:${token}`, user._id.toString(), { ex: 60 * 60 * 24 * 7 });
 
     const response = NextResponse.json({
       success: true,
-      message: 'Login successful',
       user: {
         id: user._id,
         username: user.username,
         email: user.email,
         gameAccount: user.gameAccount,
         lastLogin: user.lastLogin,
+        role: user.role,
       },
     });
 
@@ -67,7 +63,7 @@ export async function POST(request) {
 
     return response;
   } catch (error) {
-    console.error('[SIGNIN] Error during sign-in:', error);
+    console.error('[SIGNIN] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

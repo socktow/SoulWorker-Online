@@ -1,11 +1,7 @@
-import { getToken } from './token';
-
 export const getUser = async () => {
-  const token = getToken();
-  if (!token) return null;
   try {
     const res = await fetch('/api/auth/me', {
-      headers: { 'Authorization': `Bearer ${token}` },
+      credentials: 'include',
       cache: 'no-store',
     });
     if (!res.ok) return null;

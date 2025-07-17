@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "@/lib/auth";
+import { signIn } from "@/lib/auth/client";
 import { useUser } from "@/app/UserProvider";
 
 export default function LoginPage() {
@@ -42,7 +42,7 @@ export default function LoginPage() {
     try {
       const result = await signIn({ email, password });
       if (result.success) {
-        router.push("/dashboard"); // ✅ Redirect duy nhất sau login
+        router.push("/dashboard/main"); // ✅ Redirect duy nhất sau login
       } else {
         setError(result.error || "Login failed");
       }

@@ -1,31 +1,32 @@
-import { getToken, clearToken } from './token';
 import { dispatchAuthEvent, AUTH_EVENTS } from './events';
 
 export const apiCall = async (url, options = {}) => {
-  const token = getToken();
   const config = {
     ...options,
     headers: {
       'Content-Type': 'application/json',
       ...options.headers,
     },
-    credentials: 'include',
+    credentials: 'include', // gửi cookie httpOnly lên server
   };
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+
   const response = await fetch(url, config);
+
   if (response.status === 401) {
-    clearToken();
-    window.location.href = '/signin';
+    // Xóa local state nếu có
+    dispatchAuthEvent(AUTH_EVENTS.LOGOUT);
+    if (typeof window !== 'undefined') {
+      window.location.href = '/signin';
+    }
     return null;
   }
+
   return response;
 };
 
 export const signUp = async (userData) => {
   try {
-    const response = await fetch('/api/auth/signup', {
+    const response = await fetch('/api/public/auth/signup', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -47,7 +48,7 @@ export const signUp = async (userData) => {
 
 export const signIn = async ({ email, password }) => {
   try {
-    const response = await fetch('/api/auth/signin', {
+    const response = await fetch('/api/public/auth/signin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -66,18 +67,17 @@ export const signIn = async ({ email, password }) => {
 };
 
 export const signOut = async () => {
-  const token = getToken();
   try {
-    await fetch('/api/auth/logout', {
+    await fetch('/api/public/auth/logout', {
       method: 'POST',
       credentials: 'include',
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
   } catch (err) {
+    // không cần xử lý lỗi
   }
-  clearToken();
+
   dispatchAuthEvent(AUTH_EVENTS.LOGOUT);
   if (typeof window !== 'undefined') {
-    window.location.reload();
+    window.location.href = '/signin';
   }
-}; 
+};

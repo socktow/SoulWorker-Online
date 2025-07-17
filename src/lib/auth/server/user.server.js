@@ -1,5 +1,5 @@
-import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
 import { redis } from "@/lib/redis";
 import { connectMongo } from "@/lib/mongodb";
 import { User } from "@/models/user.model";
@@ -8,8 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 export async function getUserFromToken() {
   const cookieStore = await cookies();
-  const tokenCookie = cookieStore.get("token");
-  const token = tokenCookie?.value;
+  const token = cookieStore.get("token")?.value;
 
   if (!token) return null;
 
@@ -29,8 +28,10 @@ export async function getUserFromToken() {
       swcoin: dbUser.swcoin,
       gameAccount: dbUser.gameAccount,
       lastLogin: dbUser.lastLogin,
+      role: dbUser.role,
     };
   } catch (err) {
+    console.error("Invalid token:", err);
     return null;
   }
 }

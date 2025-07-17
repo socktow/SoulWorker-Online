@@ -6,18 +6,6 @@ const UserContext = createContext();
 export const UserProvider = ({ user: initialUser, children }) => {
   const [user, setUser] = useState(initialUser);
 
-  const refreshUser = async () => {
-    try {
-      const res = await fetch("/api/auth/me/current");
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data.user);
-      }
-    } catch (error) {
-      console.error("Error refreshing user:", error);
-    }
-  };
-
   useEffect(() => {
     const onLogin = () => location.reload();
     const onLogout = () => setUser(null);
@@ -40,7 +28,7 @@ export const UserProvider = ({ user: initialUser, children }) => {
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, setUser, refreshUser }}>
+    <UserContext.Provider value={{ user, setUser }}>
       {children}
     </UserContext.Provider>
   );

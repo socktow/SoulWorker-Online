@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { signOut } from "@/lib/auth";
+import { signOut } from "@/lib/auth/client";
 
 const UserLoginSection = ({ user }) => {
   return (

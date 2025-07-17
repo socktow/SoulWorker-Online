@@ -5,6 +5,7 @@ import { FaCreditCard, FaUniversity, FaQrcode, FaChevronDown, FaChevronUp } from
 import { useUser } from "@/app/UserProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { handleZaloPayPayment } from '@/lib/payment/zalopay';
 
 const swCardPackages = [
   { id: 1, coins: 575, bonus: 0, price: 85000 },
@@ -42,25 +43,20 @@ export default function CoinPurchasePage() {
     if (!selectedPackage || tab !== "zalopay") return;
     setLoading(true);
     try {
-      const res = await fetch("/api/payment/zalo/payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: selectedPackage.price,
-          method: paymentMethod,
-          item: [
-            {
-              itemid: selectedPackage.id, // ID gốc của gói
-              itemname: `Gói coin ${selectedPackage.coins + selectedPackage.bonus}`,
-              itemprice: selectedPackage.price,
-              itemquantity: 1,
-              coins: selectedPackage.coins + selectedPackage.bonus,
-              packid: selectedPackage.id, // hoặc giữ lại nếu bạn muốn rõ ràng
-            }
-          ],
-        }),
+      const data = await handleZaloPayPayment({
+        amount: selectedPackage.price,
+        method: paymentMethod,
+        item: [
+          {
+            itemid: selectedPackage.id, // ID gốc của gói
+            itemname: `Gói coin ${selectedPackage.coins + selectedPackage.bonus}`,
+            itemprice: selectedPackage.price,
+            itemquantity: 1,
+            coins: selectedPackage.coins + selectedPackage.bonus,
+            packid: selectedPackage.id, // hoặc giữ lại nếu bạn muốn rõ ràng
+          }
+        ],
       });
-      const data = await res.json();
       const transactionId = data.ordernumberstr || data.app_trans_id;
       if (transactionId) {
         router.push(`/dashboard/coin-charge/result/${transactionId}`);
