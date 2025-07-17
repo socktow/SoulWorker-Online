@@ -1,16 +1,17 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 
+export const runtime = 'nodejs';
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-export async function POST(request) {
-  try {
-    const { token } = await request.json();
-    const payload = jwt.verify(token, JWT_SECRET);
+export async function GET(request) {
+  const token = request.cookies.get('token')?.value;
+  if (!token) return NextResponse.json({ role: 'not-user' });
 
-    if (!payload?.role) return NextResponse.json({ role: 'not-user' });
+  try {
+    const payload = jwt.verify(token, JWT_SECRET);
     return NextResponse.json({ role: payload.role });
-  } catch {
+  } catch (err) {
     return NextResponse.json({ role: 'not-user' });
   }
 }

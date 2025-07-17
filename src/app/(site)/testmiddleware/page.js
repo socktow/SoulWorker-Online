@@ -2,20 +2,19 @@
 import { useEffect, useState } from 'react';
 
 export default function TestMiddlewarePage() {
-  const [status, setStatus] = useState('❓ Không xác định');
+  const [status, setStatus] = useState('⏳ Loading...');
 
   useEffect(() => {
-    const fetchStatus = async () => {
+    const checkStatus = async () => {
       const res = await fetch('/testmiddleware', { credentials: 'include' });
-      const authStatus = res.headers.get('X-Auth-Status');
+      const role = res.headers.get('X-Auth-Status');
 
-      if (authStatus === 'not-user') setStatus('🚫 Không phải user, middleware chặn');
-      else if (authStatus === 'user') setStatus('✅ Là user, middleware không chặn');
-      else if (authStatus === 'admin') setStatus('✅ Là admin, middleware không chặn');
-      else setStatus('❓ Không xác định');
+      if (role === 'admin') setStatus('✅ Admin');
+      else if (role === 'user') setStatus('✅ User');
+      else setStatus('🚫 Not authenticated');
     };
 
-    fetchStatus();
+    checkStatus();
   }, []);
 
   return (
