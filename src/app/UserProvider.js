@@ -1,7 +1,8 @@
 "use client";
+
 import { createContext, useContext, useState, useEffect } from "react";
 
-const UserContext = createContext();
+const UserContext = createContext(null);
 
 export const UserProvider = ({ user: initialUser, children }) => {
   const [user, setUser] = useState(initialUser);

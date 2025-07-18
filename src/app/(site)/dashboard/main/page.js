@@ -6,73 +6,66 @@ import {
   FaLock,
   FaQuestionCircle,
 } from "react-icons/fa";
-import { useEffect } from "react";
 import { BsCoin } from "react-icons/bs";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/app/UserProvider";
 
 export default function DashboardMainPage() {
   const router = useRouter();
-  const { user, refreshUser } = useUser();
+  const { user } = useUser();
 
-  useEffect(() => {
-    const bc = new BroadcastChannel("coin-recharge");
-    bc.onmessage = (event) => {
-      if (event.data.type === "RECHARGE_SUCCESS") {
-        console.log("Coin updated from another tab:", event.data.coin);
-        refreshUser(); 
-      }
-    };
-    return () => bc.close();
-  }, []);
+  if (!user)
+    return (
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-yellow-400 border-solid"></div>
+      </div>
+    );
 
   const Card = ({ title, icon, children }) => (
-    <div className="col-span-1 bg-white rounded-2xl shadow-md border border-yellow-300 flex flex-col transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg">
-      <div className="flex items-center gap-3 bg-yellow-400 rounded-t-2xl px-6 py-4">
+    <div className="col-span-1 bg-white rounded-2xl border border-yellow-300 shadow-md hover:shadow-lg hover:scale-[1.02] transition-transform duration-300 flex flex-col overflow-hidden">
+      <div className="flex items-center gap-3 bg-yellow-400 px-6 py-4">
         {icon && <div className="text-2xl text-yellow-700">{icon}</div>}
-        <span className="font-bold text-lg text-gray-900">{title}</span>
+        <h3 className="font-bold text-lg text-gray-900">{title}</h3>
       </div>
-      <div className="flex-1 flex flex-col gap-3 px-6 py-8">{children}</div>
+      <div className="flex-1 flex flex-col gap-4 px-6 py-6">{children}</div>
     </div>
   );
 
   const InfoRow = ({ label, value }) => (
-    <div className="flex justify-between items-center">
-      <span>{label}</span>
-      <span className="font-bold text-gray-800">{value}</span>
+    <div className="flex justify-between text-sm md:text-base">
+      <span className="text-gray-600">{label}</span>
+      <span className="font-bold text-gray-900">{value}</span>
     </div>
   );
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-4">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-4 max-w-7xl mx-auto">
       {/* Basic Info */}
       <Card title="BASIC INFORMATION" icon={<FaUserCircle />}>
         <InfoRow label="SW Name" value={user.username} />
         <InfoRow
           label="Last Logout"
-          value={new Date(user.lastLogin).toLocaleString()}
+          value={
+            user.lastLogin
+              ? new Date(user.lastLogin).toLocaleString()
+              : "Unknown"
+          }
         />
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center text-sm md:text-base">
           <span>S-Coin Balance</span>
-          <span className="flex items-center gap-1 font-bold text-gray-800">
-            <p>{user.swcoin}</p>
-            <BsCoin className="text-yellow-400" />
+          <span className="flex items-center gap-1 font-bold text-gray-900">
+            {user.swcoin} <BsCoin className="text-yellow-400" />
           </span>
         </div>
-
-        {/* GameID Active button */}
-        <div className="mt-2 flex justify-center w-full">
+        <div className="mt-4 flex justify-center">
           {user.gameId ? (
-            <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition">
+            <span className="px-4 py-2 bg-green-500 text-white rounded-full text-sm font-semibold">
               GameID Active
-            </button>
+            </span>
           ) : (
-            <button
-              className="px-4 py-2 bg-gray-400 text-white rounded cursor-not-allowed"
-              disabled
-            >
+            <span className="px-4 py-2 bg-gray-400 text-white rounded-full text-sm font-semibold cursor-not-allowed">
               GameID Inactive
-            </button>
+            </span>
           )}
         </div>
       </Card>
@@ -84,47 +77,46 @@ export default function DashboardMainPage() {
           <span>Password</span>
           <button
             onClick={() => router.push("/dashboard/change-password")}
-            className="ml-2 bg-red-400 hover:bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow transition"
+            className="bg-red-400 hover:bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-md transition"
           >
-            <FaLock className="inline mr-1" /> CHANGE
+            <FaLock /> CHANGE
           </button>
         </div>
         <div className="flex justify-between items-center">
           <span>Security Q and A</span>
-          <span className="font-bold">None</span>
-          <button className="ml-2 bg-yellow-300 hover:bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow">
+          <span className="font-bold text-gray-900">None</span>
+          <button className="bg-yellow-300 hover:bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-md transition">
             <FaRegEdit /> EDIT
           </button>
         </div>
-        <div className="flex items-center gap-2 mt-2">
+        <div className="flex items-center gap-2 mt-3">
           <input
             type="checkbox"
             checked
             readOnly
             className="accent-yellow-400"
           />
-          <span className="text-xs">Agree on receiving promotional email!</span>
+          <span className="text-xs">Agree to receive promotional emails!</span>
         </div>
       </Card>
 
       {/* S-Coin */}
       <Card title="S-COIN" icon={<BsCoin />}>
-        <div className="flex items-center gap-2 text-lg">
-          <span>Total S-Coin</span>
-          <p>{user.swcoin}</p>
+        <div className="flex items-center gap-2 font-bold text-lg">
+          <span>Total:</span>
+          {user.swcoin}
           <BsCoin className="text-yellow-400" />
-          <span className="font-bold"> </span>
         </div>
-        <div className="flex gap-2 mt-2">
+        <div className="flex gap-3 mt-4">
           <button
             onClick={() => router.push("/dashboard/coin-purchase")}
-            className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-4 py-2 rounded-full shadow-md w-full"
+            className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 rounded-full shadow-md text-sm"
           >
             S-COIN HISTORY
           </button>
           <button
             onClick={() => router.push("/dashboard/coin-charge")}
-            className="bg-red-400 hover:bg-red-500 text-white font-bold px-4 py-2 rounded-full shadow-md w-full"
+            className="flex-1 bg-red-400 hover:bg-red-500 text-white font-bold py-2 rounded-full shadow-md text-sm"
           >
             CHARGE
           </button>
@@ -137,59 +129,51 @@ export default function DashboardMainPage() {
         <InfoRow label="Answered" value="0" />
         <InfoRow
           label="Not Answered"
-          value={<span className="text-red-500">0</span>}
+          value={<span className="text-red-500 font-bold">0</span>}
         />
-        <div className="flex gap-2 mt-2">
+        <div className="flex gap-3 mt-4">
           <button
             onClick={() => router.push("/dashboard/inquiry")}
-            className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-sm px-4 py-2 rounded-full shadow-md w-full"
+            className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 rounded-full shadow-md text-sm"
           >
             INQUIRY HISTORY
           </button>
-          <button className="bg-red-400 hover:bg-red-500 text-white font-bold text-sm px-4 py-2 rounded-full shadow-md w-full">
-            SEND NEW INQUIRY
+          <button className="flex-1 bg-red-400 hover:bg-red-500 text-white font-bold py-2 rounded-full shadow-md text-sm">
+            SEND INQUIRY
           </button>
         </div>
       </Card>
 
       {/* Forum Activities */}
-      <div className="col-span-1 lg:col-span-2 bg-white rounded-2xl shadow-md border border-yellow-300 flex flex-col transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg">
-        <div className="flex items-center gap-3 bg-yellow-400 rounded-t-2xl px-6 py-4">
-          <span className="font-bold text-lg text-gray-900">
-            FORUM ACTIVITIES
-          </span>
+      <div className="col-span-1 lg:col-span-2 flex flex-col bg-white rounded-2xl border border-yellow-300 shadow-md hover:shadow-lg hover:scale-[1.02] transition-transform duration-300 overflow-hidden">
+        <div className="flex items-center gap-3 bg-yellow-400 px-6 py-4">
+          <span className="font-bold text-lg text-gray-900">FORUM ACTIVITIES</span>
         </div>
-        <div className="flex flex-col md:flex-row items-center gap-6 p-6">
+        <div className="flex flex-col md:flex-row gap-6 p-6">
           <div className="flex flex-col items-center w-full md:w-1/4">
             <img
               src="/static/img/forum/avatar-sample.png"
               alt="avatar"
-              className="w-24 h-24 rounded-full border-4 border-yellow-300 object-cover shadow-md hover:shadow-yellow-500 transition-shadow"
+              className="w-24 h-24 rounded-full border-4 border-yellow-300 object-cover shadow-md hover:shadow-yellow-500 transition"
             />
-            <span className="font-bold mt-2"> </span>
+            <span className="font-bold mt-2">{user.username}</span>
             <span className="text-xs text-gray-500">
               Forum Sanction: <span className="text-blue-600">None</span>
             </span>
           </div>
-          <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
+          <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: "Created\nTopics", count: 0, bg: "bg-gray-100" },
-              { label: "Left\nComments", count: 0, bg: "bg-gray-200" },
-              { label: "Received\nLikes", count: 0, bg: "bg-gray-300" },
-              {
-                label: "Bookmarked\nTopics",
-                count: 0,
-                bg: "bg-gray-800 text-white",
-              },
-            ].map(({ label, count, bg }, i) => (
+              { label: "Created\nTopics", count: 0 },
+              { label: "Left\nComments", count: 0 },
+              { label: "Received\nLikes", count: 0 },
+              { label: "Bookmarked\nTopics", count: 0 },
+            ].map(({ label, count }, idx) => (
               <div
-                key={i}
-                className={`${bg} rounded p-4 flex flex-col items-center`}
+                key={idx}
+                className="bg-gray-100 rounded-xl flex flex-col items-center justify-center gap-2 p-4 text-center text-sm font-semibold"
               >
-                <span className="font-bold text-lg">{count}</span>
-                <span className="text-xs text-center whitespace-pre-line">
-                  {label}
-                </span>
+                <span className="text-xl text-gray-900">{count}</span>
+                <span className="whitespace-pre-line text-gray-700">{label}</span>
               </div>
             ))}
           </div>

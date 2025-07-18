@@ -6,12 +6,16 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export async function GET(request) {
   const token = request.cookies.get('token')?.value;
-  if (!token) return NextResponse.json({ role: 'not-user' });
+
+  if (!token) {
+    return NextResponse.json({ role: null, message: 'No token provided' });
+  }
 
   try {
     const payload = jwt.verify(token, JWT_SECRET);
     return NextResponse.json({ role: payload.role });
   } catch (err) {
-    return NextResponse.json({ role: 'not-user' });
+    console.error('[Verify-Token] Invalid token:', err.message);
+    return NextResponse.json({ role: null, message: 'Invalid token' });
   }
 }

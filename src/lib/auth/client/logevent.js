@@ -78,6 +78,6 @@ export const signOut = async () => {
 
   dispatchAuthEvent(AUTH_EVENTS.LOGOUT);
   if (typeof window !== 'undefined') {
-    window.location.href = '/signin';
+    window.location.href = '/';
   }
 };

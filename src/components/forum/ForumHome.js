@@ -10,8 +10,9 @@ const categories = [
 
 export function ForumCategories() {
   return (
-    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-6 bg-white rounded-lg shadow">
+    <div className="flex justify-between items-center w-full max-w-6xl mx-auto p-6 bg-white">
       <div className="flex flex-wrap gap-4">
+
         {categories.map((cat) => (
           <Link key={cat.name} href={cat.href}>
             <div className="category-item btn-corner px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center cursor-pointer transition">
@@ -20,6 +21,14 @@ export function ForumCategories() {
             </div>
           </Link>
         ))}
+      </div>
+      <div>
+        {/* Create Button */}
+        <Link href="/forum/create">
+          <button className="btn-corner px-2 py-2  rounded-lg flex items-center cursor-pointer transition w-2 h-2">
+            + Create
+          </button>
+        </Link>
       </div>
       <div className="flex items-end mt-4 md:mt-0">
         <div className="forum-policy mr-6 cursor-pointer text-blue-600 hover:underline">Forum Policy</div>

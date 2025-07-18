@@ -18,11 +18,13 @@ export const metadata = {
     icon: '/static/favicon.ico',
   },
 };
+
 import { getUserFromToken } from "@/lib/auth/server/user.server";
 import { UserProvider } from "./UserProvider";
 
 export default async function RootLayout({ children }) {
   const user = await getUserFromToken();
+
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>

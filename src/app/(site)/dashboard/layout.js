@@ -1,29 +1,7 @@
 "use client";
-
 import DashboardTabs from "@/components/dashboard/DashboardTabs";
-import { useUser } from "@/app/UserProvider";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 export default function DashboardLayout({ children }) {
-  const { user } = useUser();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (user === undefined) return; // Đang loading
-    if (!user) router.replace("/signin");
-  }, [user, router]);
-
-  if (user === undefined) {
-    return (
-      <div className="flex justify-center items-center min-h-screen text-xl font-semibold text-black">
-        Loading...
-      </div>
-    );
-  }
-
-  if (!user) return null; // Đã đẩy về signin, không render gì
-
   return (
     <>
       <div className="relative w-full h-40 md:h-48 flex items-center justify-center mb-6">

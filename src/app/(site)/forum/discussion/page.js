@@ -16,7 +16,6 @@ export default function DiscussionPage() {
       <ForumCategories />
       <div className="p-6">
         <h2 className="text-2xl font-bold mb-4">Discussion Topics</h2>
-        {/* List of discussion topics will go here */}
       </div>
     </div>
   );

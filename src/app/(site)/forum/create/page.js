@@ -27,6 +27,8 @@ export default function CreatePostPage() {
   const [content, setContent] = useState("");
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
 
 
   const handleMainCategoryChange = (e) => {
@@ -41,6 +43,37 @@ export default function CreatePostPage() {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
       setPreviewUrl(URL.createObjectURL(e.target.files[0]));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSuccess(false);
+    setError("");
+    try {
+      const res = await fetch("/api/user/forum/post-articles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          content,
+          mainCategory,
+          subCategory,
+          imageUrl: "", // Có thể bổ sung upload ảnh sau
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSuccess(true);
+        setTitle("");
+        setContent("");
+        setFile(null);
+        setPreviewUrl("");
+      } else {
+        setError("Đăng bài thất bại!");
+      }
+    } catch (err) {
+      setError("Lỗi kết nối server!");
     }
   };
 
@@ -136,10 +169,14 @@ export default function CreatePostPage() {
             </div>
           </div>
 
-          <div className="flex justify-end gap-4">
-            <button className="px-6 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold transition">Cancel</button>
-            <button className="px-6 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold shadow-md transition">Post</button>
-          </div>
+          <form onSubmit={handleSubmit}>
+            <div className="flex justify-end gap-4">
+              <button type="button" className="px-6 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold transition">Cancel</button>
+              <button type="submit" className="px-6 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold shadow-md transition">Post</button>
+            </div>
+            {success && <div className="text-green-600 mt-2">Đăng bài thành công!</div>}
+            {error && <div className="text-red-600 mt-2">{error}</div>}
+          </form>
         </div>
       </div>
     </div>
