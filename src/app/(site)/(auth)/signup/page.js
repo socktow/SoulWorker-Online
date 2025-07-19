@@ -33,16 +33,17 @@ export default function RegisterPage() {
         return <Stage1Email onNext={handleStage1Complete} />;
       case 2:
         return (
-          <Stage2Credentials 
-            email={userData.email} 
-            onNext={handleStage2Complete} 
+          <Stage2Credentials
+            email={userData.email}
+            onNext={handleStage2Complete}
             onBack={handleBackToStage1}
           />
         );
       case 3:
         return (
-          <Stage3Success 
-            userData={userData} 
+          <Stage3Success
+            userData={userData}
+            email={userData.email}
             onBack={handleBackToStage2}
           />
         );
@@ -56,4 +57,4 @@ export default function RegisterPage() {
       {renderCurrentStage()}
     </div>
   );
-} 
+}

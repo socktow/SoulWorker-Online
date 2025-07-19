@@ -28,23 +28,25 @@ export const signUp = async (userData) => {
   try {
     const response = await fetch('/api/public/auth/signup', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData),
       credentials: 'include',
     });
+
     const data = await response.json();
+
     if (response.ok) {
       dispatchAuthEvent(AUTH_EVENTS.LOGIN);
       return { success: true, data };
     } else {
-      return { success: false, error: data.error };
+      return { success: false, error: data.error || data.message || 'Unknown error' };
     }
   } catch (error) {
-    return { success: false, error: 'Network error' };
+    console.error('SignUp error:', error);
+    return { success: false, error: error.message || 'Network error' };
   }
 };
+
 
 export const signIn = async ({ email, password }) => {
   try {
@@ -68,7 +70,7 @@ export const signIn = async ({ email, password }) => {
 
 export const signOut = async () => {
   try {
-    await fetch('/api/public/auth/logout', {
+    await fetch('/api/user/logout', {
       method: 'POST',
       credentials: 'include',
     });

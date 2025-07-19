@@ -16,7 +16,7 @@ export default function Stage1Email({ onNext }) {
     setIsLoading(true);
 
     // Kiểm tra email đã tồn tại chưa
-    const res = await fetch('/api/auth/check-email', {
+    const res = await fetch('/api/public/auth/check-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email }),
