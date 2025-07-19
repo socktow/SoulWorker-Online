@@ -12,12 +12,6 @@ html,body {
   margin: 0;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -32,7 +26,6 @@ html,body {
   transition: clip-path 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   border: none;
   outline: none;
-  background: linear-gradient(to right, #0f172a, #1e293b); /* dark gradient */
   color: white;
   padding: 1rem 2rem;
   font-weight: bold;
@@ -81,15 +74,3 @@ html,body {
   transform: scaleX(0);
 }
 
-.btn-corner.forum-category {
-  background: #ffe033 !important;
-  color: #444 !important;
-  font-weight: bold;
-  box-shadow: none;
-}
-
-.btn-corner.forum-category:hover,
-.btn-corner.forum-category:focus-visible {
-  background: #ffe95c !important;
-  color: #222 !important;
-}
