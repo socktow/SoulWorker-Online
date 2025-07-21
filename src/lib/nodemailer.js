@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
-  host: 'mail90101.maychuemail.com',
+  host: process.env.MAIL_HOST,
   port: 465,
   secure: true,
   auth: {
