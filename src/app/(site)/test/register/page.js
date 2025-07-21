@@ -11,19 +11,35 @@ export default function RegisterPage() {
 
   const sendOtp = async () => {
     setMessage('Sending OTP...');
-    const res = await fetch('/api/public/auth/signup/sendotp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      setMessage('OTP sent to email.');
-      setStep(2);
-    } else {
-      setMessage(data.error || 'Failed to send OTP');
+
+    try {
+      const res = await fetch('/api/public/auth/signup/sendotp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      let data;
+      try {
+        data = await res.json();
+      } catch (jsonError) {
+        console.error('Lỗi đọc JSON:', jsonError);
+        setMessage('Server error. Please try again later.');
+        return;
+      }
+
+      if (res.ok) {
+        setMessage('OTP sent to email.');
+        setStep(2);
+      } else {
+        setMessage(data?.error || 'Failed to send OTP');
+      }
+    } catch (error) {
+      console.error('Network Error:', error);
+      setMessage('Connection error. Please try again later.');
     }
   };
+
 
   const verifyOtp = async () => {
     setMessage('Verifying OTP...');
