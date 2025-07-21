@@ -16,10 +16,10 @@ export async function POST(request) {
     console.log(`✅ [SEND OTP] MAIL_USER: ${process.env.MAIL_USER}`);
     console.log(`✅ [SEND OTP] MAIL_HOST: ${transporter.options.host}`);
     console.log(`✅ [SEND OTP] MAIL_PORT: ${transporter.options.port}`);
-    console.log(`✅ [SEND OTP] Sending from gamemaster@kiemhieptinhduyen.com`);
+    console.log(`✅ [SEND OTP] Sending from no-reply@kiemhieptinhduyen.com`);
 
     await transporter.sendMail({
-      from: `"Soulworker VietNam - Send OTP" <gamemaster@kiemhieptinhduyen.com>`,
+      from: `"Soulworker VietNam - Send OTP" <no-reply@kiemhieptinhduyen.com>`,
       to: email,
       subject: 'Your Soulworker VietNam OTP Code',
       text: `Your verification code is ${otp}. This code will expire in 5 minutes.`,
