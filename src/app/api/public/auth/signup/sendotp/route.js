@@ -12,19 +12,25 @@ export async function POST(request) {
 
     await redis.set(redisKey, otp, { ex: 300 }); // 5 phút
 
-    console.log(`Generated OTP for ${email}: ${otp}`);
+    console.log(`✅ [SEND OTP] Generated OTP for ${email}: ${otp}`);
+    console.log(`✅ [SEND OTP] MAIL_USER: ${process.env.MAIL_USER}`);
+    console.log(`✅ [SEND OTP] MAIL_HOST: ${transporter.options.host}`);
+    console.log(`✅ [SEND OTP] MAIL_PORT: ${transporter.options.port}`);
+    console.log(`✅ [SEND OTP] Sending from gamemaster@kiemhieptinhduyen.com`);
 
     await transporter.sendMail({
       from: `"Soulworker VietNam - Send OTP" <gamemaster@kiemhieptinhduyen.com>`,
       to: email,
       subject: 'Your Soulworker VietNam OTP Code',
       text: `Your verification code is ${otp}. This code will expire in 5 minutes.`,
-      html: `...`,
+      html: `<p>Your verification code is <b>${otp}</b>. This code will expire in 5 minutes.</p>`,
     });
+
+    console.log(`✅ [SEND OTP] Email sent successfully to ${email}`);
 
     return NextResponse.json({ message: 'OTP sent successfully' });
   } catch (error) {
-    console.error('API Error:', error);
+    console.error('❌ [SEND OTP] API Error:', error);
     return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
   }
 }
