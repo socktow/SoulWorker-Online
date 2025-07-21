@@ -11,8 +11,4 @@ const transporter = nodemailer.createTransport({
   tls: { rejectUnauthorized: false },
 });
 
-transporter.verify()
-  .then(() => console.log('✅ SMTP connection is ready!'))
-  .catch((err) => console.error('❌ SMTP connection failed:', err));
-
 export default transporter;
