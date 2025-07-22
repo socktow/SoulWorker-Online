@@ -13,7 +13,7 @@ export default function RegisterPage() {
     setMessage('Sending OTP...');
 
     try {
-      const res = await fetch('https://soul-worker-online.vercel.app/api/public/auth/signup/sendotp', {
+      const res = await fetch('/api/public/auth/signup/sendotp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

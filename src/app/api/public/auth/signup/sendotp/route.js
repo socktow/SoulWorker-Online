@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { redis } from '@/lib/redis';
-import transporter from '@/lib/nodemailer';
 
 export async function POST(request) {
   try {
@@ -8,29 +8,40 @@ export async function POST(request) {
     if (!email) return NextResponse.json({ error: 'Missing email' }, { status: 400 });
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const redisKey = `otp:${email}`;
 
+    // ✅ Lưu OTP vào Redis
+    const redisKey = `otp:${email}`;
     await redis.set(redisKey, otp, { ex: 300 }); // 5 phút
 
-    console.log(`✅ [SEND OTP] Generated OTP for ${email}: ${otp}`);
-    console.log(`✅ [SEND OTP] MAIL_USER: ${process.env.MAIL_USER}`);
-    console.log(`✅ [SEND OTP] MAIL_HOST: ${transporter.options.host}`);
-    console.log(`✅ [SEND OTP] MAIL_PORT: ${transporter.options.port}`);
-    console.log(`✅ [SEND OTP] Sending from no-reply@kiemhieptinhduyen.com`);
+    const timestamp = Math.floor(Date.now() / 1000);
+    const secret = process.env.MAIL_API_SECRET;
+    const mailUrl = process.env.VERCEL_SEND_OTP_URL;
 
-    await transporter.sendMail({
-      from: `"Soulworker VietNam - Send OTP" <no-reply@kiemhieptinhduyen.com>`,
-      to: email,
-      subject: 'Your Soulworker VietNam OTP Code',
-      text: `Your verification code is ${otp}. This code will expire in 5 minutes.`,
-      html: `<p>Your verification code is <b>${otp}</b>. This code will expire in 5 minutes.</p>`,
+    if (!secret || !mailUrl) {
+      console.error('❌ Config Error: MAIL_API_SECRET hoặc VERCEL_SEND_OTP_URL chưa set.');
+      return NextResponse.json({ error: 'Mail server configuration error' }, { status: 500 });
+    }
+
+    const raw = `${email}:${otp}:${timestamp}`;
+    const signature = crypto.createHmac('sha256', secret).update(raw).digest('hex');
+
+    const response = await fetch(mailUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, otp, timestamp, signature }),
     });
 
-    console.log(`✅ [SEND OTP] Email sent successfully to ${email}`);
+    const result = await response.json();
 
+    if (!response.ok) {
+      console.error('❌ Mailserver Error:', result);
+      return NextResponse.json({ error: result?.error || 'Failed to send OTP' }, { status: response.status });
+    }
+
+    console.log(`✅ OTP sent to ${email}: ${otp}`);
     return NextResponse.json({ message: 'OTP sent successfully' });
   } catch (error) {
-    console.error('❌ [SEND OTP] API Error:', error);
+    console.error('❌ API Error:', error);
     return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
   }
 }
