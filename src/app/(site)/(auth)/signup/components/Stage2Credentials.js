@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
-
-const CORRECT_OTP = "123456"; // Giả lập OTP đúng
+import { verifyOtp , sendOtp } from "@/lib/auth/client/client";
 
 export default function Stage2Credentials({ email, onNext, onBack }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -17,14 +16,28 @@ export default function Stage2Credentials({ email, onNext, onBack }) {
     }, 1200);
   };
 
-  const handleNext = (e) => {
+  const handleNext = async (e) => {
     e.preventDefault();
     setOtpError("");
-    if (otp !== CORRECT_OTP) {
-      setOtpError("Invalid OTP. Please check your email and try again.");
+
+    if (otp.length !== 6) {
+      setOtpError("Please enter a valid 6-digit OTP.");
       return;
     }
-    onNext({ email });
+
+    setIsLoading(true);
+    try {
+      const res = await verifyOtp(email, otp);
+      if (!res.error) {
+        onNext({ verified: true });
+      } else {
+        setOtpError(res.message || res.error || "Invalid OTP. Please check your email and try again.");
+      }
+    } catch (err) {
+      setOtpError("Verification failed. Try again later.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

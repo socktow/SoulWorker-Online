@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signUp } from "@/lib/auth/client";
+import { register } from "@/lib/auth/client/client";
 
 export default function Stage3Success({ onBack, email }) {
   const [username, setUsername] = useState("");
@@ -16,13 +16,16 @@ export default function Stage3Success({ onBack, email }) {
     e.preventDefault();
     setError("");
 
-    if (username.trim().length < 3) return setError("Username must be at least 3 characters.");
-    if (password.length < 6) return setError("Password must be at least 6 characters.");
-    if (password !== confirmPassword) return setError("Passwords do not match.");
+    if (username.trim().length < 3)
+      return setError("Username must be at least 3 characters.");
+    if (password.length < 6)
+      return setError("Password must be at least 6 characters.");
+    if (password !== confirmPassword)
+      return setError("Passwords do not match.");
 
     setIsLoading(true);
     try {
-      const result = await signUp({ username, password, email });
+      const result = await register({ username, password, email });
       if (result.success) setSuccess(true);
       else setError(result.error || "Registration failed");
     } catch (err) {
@@ -40,13 +43,28 @@ export default function Stage3Success({ onBack, email }) {
         <div className="w-full max-w-md flex flex-col items-center text-center p-0">
           <div className="mt-16 mb-8">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <svg
+                className="w-10 h-10 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             </div>
-            <p className="text-3xl font-bold text-black mb-4">Registration Completed!</p>
+            <p className="text-3xl font-bold text-black mb-4">
+              Registration Completed!
+            </p>
             <div className="w-full border-t-2 border-black mb-8" />
-            <p className="text-base text-gray-700 mb-6">Your account has been created. You can now log in and enjoy the game!</p>
+            <p className="text-base text-gray-700 mb-6">
+              Your account has been created. You can now log in and enjoy the
+              game!
+            </p>
             <button
               onClick={handleGoToLogin}
               className="btn-corner w-full py-4 bg-black text-white font-bold text-xl transition-all"
@@ -62,14 +80,19 @@ export default function Stage3Success({ onBack, email }) {
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center bg-white">
       <div className="w-full max-w-md p-0 flex flex-col items-center">
-        <h1 className="text-3xl font-bold text-black text-center mt-12 mb-6">Create Your Account</h1>
+        <h1 className="text-3xl font-bold text-black text-center mt-12 mb-6">
+          Create Your Account
+        </h1>
         <div className="w-full border-t-2 border-black mb-8" />
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded text-sm mb-4 w-full text-center">
             {error}
           </div>
         )}
-        <form onSubmit={handleRegister} className="flex flex-col gap-6 w-full items-center">
+        <form
+          onSubmit={handleRegister}
+          className="flex flex-col gap-6 w-full items-center"
+        >
           <InputField
             id="username"
             label="Username"
@@ -120,7 +143,12 @@ export default function Stage3Success({ onBack, email }) {
 function InputField({ id, label, type = "text", value, onChange, disabled }) {
   return (
     <div className="w-full">
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1 ml-1">{label}</label>
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-gray-700 mb-1 ml-1"
+      >
+        {label}
+      </label>
       <input
         id={id}
         type={type}

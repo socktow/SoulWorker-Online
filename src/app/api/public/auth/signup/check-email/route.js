@@ -1,4 +1,4 @@
-// src/app/(site)/api/auth/check-email/route.js
+// src/app/(site)/api/auth/signup/check-email/route.js
 import { NextResponse } from 'next/server';
 import { connectMongo } from '@/lib/mongodb';
 import { User } from '@/models/user.model';
@@ -8,4 +8,4 @@ export async function POST(request) {
   await connectMongo();
   const user = await User.findOne({ email });
   return NextResponse.json({ exists: !!user });
-}
+} 
