@@ -37,7 +37,7 @@ export default function ForumCategories() {
                 className="btn-corner px-6 py-3 font-semibold cursor-pointer transition-all"
                 style={{
                   backgroundColor: "#FFDB16",
-                  color: "rgb(102, 102, 102)",
+                  color: "rgb(255, 255, 255)",
                 }}
               >
                 {cat.name} <span className="ml-1">›</span>
@@ -48,7 +48,7 @@ export default function ForumCategories() {
             className="btn-corner px-6 py-3 font-semibold cursor-pointer transition-all"
             style={{
               border: "2px solid rgb(102, 102, 102)",
-              color: "rgb(102, 102, 102)",
+              color: "rgb(255, 255, 255)",
               backgroundColor: "transparent",
             }}
           >

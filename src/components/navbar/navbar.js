@@ -32,6 +32,7 @@ const Navbar = () => {
       subLinks: [
         { name: "Game", href: "/game-introduction" },
         { name: "Play Guide", href: "/game-guide" },
+        { name: "Character" , href: "/character"}
       ],
     },
     {
@@ -48,7 +49,7 @@ const Navbar = () => {
     {
       name: "Download",
       href: "/game-download",
-      subLinks: [{ name: "Game Download", href: "/game-download" }],
+      subLinks: [],
     },
     {
       name: "Support",

@@ -1,18 +1,7 @@
 "use client";
-import { Suspense } from "react";
-import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-
-const NEWS_TYPE = {
-  0: "Latest News",
-  1: "Notice",
-  2: "Maintenance",
-  3: "Updates",
-  4: "Shop",
-  5: "Event",
-  6: "GM Video",
-};
+import Link from "next/link";
+import { useState } from "react";
 
 const TABS = [
   { type: "0", label: "Latest News" },
@@ -24,7 +13,6 @@ const TABS = [
   { type: "6", label: "GM Video" },
 ];
 
-// Sample data
 const POSTS = [
   {
     id: "abc123",
@@ -49,40 +37,35 @@ const POSTS = [
   },
 ];
 
-export default function NewsPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <NewsList />
-    </Suspense>
-  );
-}
-
-function NewsList() {
+export default function NewsList() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const initialType = searchParams.get("type") || "0";
-  const initialSearch = searchParams.get("q") || "";
-
-  const [type, setType] = useState(initialType);
-  const [search, setSearch] = useState(initialSearch);
-
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (type && type !== "0") params.set("type", type);
-    if (search) params.set("q", search);
-    const url = `/news${params.toString() ? `?${params.toString()}` : ""}`;
-    router.push(url, { shallow: true });
-    // eslint-disable-next-line
-  }, [type, search]);
+  const type = searchParams.get("type") || "0";
+  const search = searchParams.get("q") || "";
+  const [input, setInput] = useState(search);
 
   const currentTab = TABS.find((tab) => tab.type === type);
 
-  const handleTabClick = (tabType) => setType(tabType);
+  const handleTabClick = (tabType) => {
+    const params = new URLSearchParams(searchParams);
+    if (tabType === "0") {
+      params.delete("type");
+    } else {
+      params.set("type", tabType);
+    }
+    router.push(`/news?${params.toString()}`);
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
-    setSearch(search);
+    const params = new URLSearchParams(searchParams);
+    if (input.trim()) {
+      params.set("q", input.trim());
+    } else {
+      params.delete("q");
+    }
+    router.push(`/news?${params.toString()}`);
   };
 
   const filteredPosts = POSTS.filter(
@@ -116,10 +99,11 @@ function NewsList() {
           onSubmit={handleSearch}
         >
           <input
+            name="search"
             type="text"
             className="input flex-1 border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
             placeholder="Search news..."
             style={{ borderRight: "none" }}
           />
@@ -149,7 +133,7 @@ function NewsList() {
         </form>
       </div>
 
-      {/* Tabs row */}
+      {/* Tabs */}
       <div className="flex border-b border-gray-200 mb-8">
         {TABS.map((tab) => {
           const isActive = type === tab.type;
@@ -159,12 +143,20 @@ function NewsList() {
               type="button"
               onClick={() => handleTabClick(tab.type)}
               className={`tab-item flex-1 text-center px-4 py-3 transition-all duration-200 font-medium relative
-                ${isActive ? "active font-bold bg-yellow-400 text-black" : "bg-white text-black hover:bg-yellow-400 hover:font-bold"}
+                ${
+                  isActive
+                    ? "active font-bold bg-yellow-400 text-black"
+                    : "bg-white text-black hover:bg-yellow-400 hover:font-bold"
+                }
               `}
             >
               <span
                 className={`absolute left-0 bottom-0 w-full h-1 transition-all duration-200
-                  ${isActive ? "bg-yellow-400" : "bg-transparent group-hover:bg-yellow-400"}`}
+                  ${
+                    isActive
+                      ? "bg-yellow-400"
+                      : "bg-transparent group-hover:bg-yellow-400"
+                  }`}
               ></span>
               {tab.label}
             </button>
@@ -172,7 +164,7 @@ function NewsList() {
         })}
       </div>
 
-      {/* Danh sách bài viết */}
+      {/* Post list */}
       <div className="space-y-6">
         {filteredPosts.length === 0 && (
           <div className="text-center text-gray-500 py-10">No news found.</div>
@@ -191,7 +183,6 @@ function NewsList() {
                 {new Date(post.date).toLocaleDateString()}
               </div>
             </div>
-            {/* Link chuyển trang không reload */}
             <Link
               href={`/news/${post.id}`}
               className="px-4 py-2 bg-blue-500 text-white rounded-full font-semibold shadow hover:bg-blue-600 transition inline-block"
